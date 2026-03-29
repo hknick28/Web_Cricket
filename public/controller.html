@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+  <head>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+
+      function testEmit() {
+        socket.emit("orientation", { alpha: 1, beta: 2, gamma: 3 });
+      }
+
+      // event listener
+      function startSensors() {
+        window.addEventListener("deviceorientation", (event) => {
+          document.getElementById("output").innerHTML =
+            "alpha: " +
+            event.alpha +
+            " beta: " +
+            event.beta +
+            " gamma: " +
+            event.gamma;
+
+          socket.emit("orientation", {
+            alpha: event.alpha,
+            beta: event.beta,
+            gamma: event.gamma,
+          });
+        });
+      }
+    </script>
+  </head>
+
+  <body>
+    // user interface
+    <h1>Cricket Conterller</h1>
+    <button onclick="testEmit()">Test Send</button>
+    <button onclick="startSensors()">Start</button>
+    <div id="output">Waiting for sensor...</div>
+  </body>
+</html>
