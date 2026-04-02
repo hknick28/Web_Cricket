@@ -9,6 +9,8 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
+      const socket = io();
+
       const scene = new THREE.Scene();
       const renderer = new THREE.WebGLRenderer();
       renderer.setSize(window.innerWidth, window.innerHeight);
@@ -30,7 +32,21 @@
 
       scene.add(mesh);
 
-      renderer.render(scene, camera);
+      //Loop
+      function animate() {
+        requestAnimationFrame(animate);
+
+        //check phone orientation and update cube pos
+        socket.on("orientation", (data) => {
+          mesh.position.x += data.gamma / 1000;
+          mesh.positoin.y += data.beta / 1000;
+          mesh.position.z += data.alpha / 1;
+        });
+
+        //render
+        renderer.render(scene, camera);
+      }
+      animate();
     </script>
   </body>
 </html>

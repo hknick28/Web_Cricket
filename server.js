@@ -34,8 +34,5 @@ server.listen(3000, () => {
     networkInterfaces["Wireless LAN adapter Wi-Fi"];
   const ipv4 = wifiInfo.find((details) => details.family === "IPv4");
   console.log("Server running at http://localhost:3000");
-  fetch("https://api.ipify.org")
-    .then((res) => res.text())
-    .then(console.log);
   console.log("On your phone visit: http://[", ipv4, "]:3000");
 });
