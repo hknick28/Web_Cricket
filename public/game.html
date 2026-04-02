@@ -25,25 +25,41 @@
       );
       camera.position.z = 5;
 
+      //create a cube
       const box = new THREE.BoxGeometry(1, 1, 1);
       const surface = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-
       const mesh = new THREE.Mesh(box, surface);
 
       scene.add(mesh);
 
+      let gammaOffset = 0;
+      let betaOffset = 0;
+      let latestGamma = 0;
+      let latestBeta = 0;
+
+      function calibrate() {
+        gammaOffset = latestGamma;
+        betaOffset = latestAlpha;
+      }
+      socket.on("calibrate", () => {
+        calibrate();
+      });
       //Loop
       function animate() {
         requestAnimationFrame(animate);
 
-        //check phone orientation and update cube pos
+        //check phone orientation and update cube pos in camera
         socket.on("orientation", (data) => {
-          mesh.position.x += data.gamma / 1000;
-          mesh.positoin.y += data.beta / 1000;
-          mesh.position.z += data.alpha / 1;
+          latestGamma = data.gamma;
+          latestBeta = data.beta;
+          mesh.position.x = Math.max(-3, Math.min(3, data.gamma - gammaOffset));
+          mesh.position.y = Math.max(
+            -3,
+            Math.min(3, -(data.beta - betaOffset)),
+          ); // up/dow (phone tilt)
         });
 
-        //render
+        //render cube
         renderer.render(scene, camera);
       }
       animate();

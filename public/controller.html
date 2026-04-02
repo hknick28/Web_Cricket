@@ -23,13 +23,18 @@
           });
         });
       }
+
+      //calibrate default gamma and beta values for batting
+      function calibrate() {
+        socket.emit("calibrate");
+      }
     </script>
   </head>
 
   <body>
-    // user interface
-    <h1>Cricket Conterller</h1>
+    <h1>Conteroller</h1>
     <button onclick="startSensors()">Start</button>
+    <button onClick="calibrate()">calibrate</button>
     <div id="output">Waiting for sensor...</div>
   </body>
 </html>

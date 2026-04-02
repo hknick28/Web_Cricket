@@ -18,6 +18,10 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("orientation", data);
   });
 
+  socket.on("calibrate", () => {
+    socket.broadcast.emit("calibrate");
+  });
+
   socket.on("disconnect", () => {
     console.log("A device disconnected:", socket.id);
   });
@@ -26,9 +30,11 @@ io.on("connection", (socket) => {
 // Start the server on port 3000
 server.listen(3000, () => {
   const os = require("os");
+
+  //debugging
   const networkInterfaces = os.networkInterfaces();
 
-  // Filter for the Wireless/Wi-Fi interface
+  // show ip addr for testing
   const wifiInfo =
     networkInterfaces["Wi-Fi"] ||
     networkInterfaces["Wireless LAN adapter Wi-Fi"];
