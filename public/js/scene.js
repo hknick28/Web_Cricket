@@ -10,14 +10,8 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000,
 );
-camera.position.z = 5;
-
-//create a cube
-const box = new THREE.BoxGeometry(1, 1, 1);
-const surface = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-const mesh = new THREE.Mesh(box, surface);
-
-scene.add(mesh);
+camera.position.set(0, 5, 16);
+camera.lookAt(0, 0, 0);
 //Loop
 function animate() {
   requestAnimationFrame(animate);
