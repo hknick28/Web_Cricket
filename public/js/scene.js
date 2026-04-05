@@ -10,7 +10,7 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000,
 );
-camera.position.set(0, 5, 16);
+camera.position.set(0, 2, 16);
 camera.lookAt(0, 0, 0);
 //Loop
 function animate() {

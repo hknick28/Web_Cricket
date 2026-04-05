@@ -14,13 +14,13 @@ let wideLineLen = poppingCreaseOffset;
 let wideLineWidth = creaseLineDepth;
 
 let bowlingBackZ = -height / 2;
-let battingbackZ = height / 2;
+let battingBackZ = height / 2;
 
 let wideLineOffset = 1.2;
 
 // near end (batter's end)
 let bowlingPopping = bowlingBackZ + poppingCreaseOffset;
-let battingPopping = battingbackZ - poppingCreaseOffset;
+let battingPopping = battingBackZ - poppingCreaseOffset;
 
 let battingWideX = battingPopping + wideLineOffset / 2;
 
@@ -31,19 +31,8 @@ scene.add(mesh);
 mesh.rotation.x = rotate;
 //mesh.position.z = zOffset;
 
-// Creases
-createLine(width, creaseLineDepth, battingPopping, 0); //batting popin
-createLine(width, creaseLineDepth, battingbackZ, 0); // batter stump
-
-createLine(width, creaseLineDepth, bowlingPopping, 0);
-createLine(width, creaseLineDepth, bowlingBackZ, 0);
-
-// Wide lines
-createLine(wideLineWidth, wideLineLen, battingWideX, -wideLineOffset); //Batter-left
-createLine(wideLineWidth, wideLineLen, battingWideX, wideLineOffset); //Batter-right
-
-createLine(wideLineWidth, wideLineLen, -battingWideX, -wideLineOffset); //Batter-left
-createLine(wideLineWidth, wideLineLen, -battingWideX, wideLineOffset); //Batter-right
+setupCrease();
+setupStumps();
 
 function createLine(lineWidth, depth, z, x) {
   const line = new THREE.PlaneGeometry(lineWidth, depth);
@@ -54,4 +43,25 @@ function createLine(lineWidth, depth, z, x) {
 
   scene.add(lineMesh);
   return lineMesh;
+}
+
+function setupCrease() {
+  // Creases
+  createLine(width, creaseLineDepth, battingPopping, 0); //batting popin
+  createLine(width, creaseLineDepth, battingBackZ, 0); // batter stump
+
+  createLine(width, creaseLineDepth + 0.2, bowlingPopping, 0);
+  createLine(width, creaseLineDepth + 0.2, bowlingBackZ, 0);
+
+  // Wide lines
+  createLine(wideLineWidth, wideLineLen, battingWideX, -wideLineOffset); //Batter-left
+  createLine(wideLineWidth, wideLineLen, battingWideX, wideLineOffset); //Batter-right
+
+  createLine(wideLineWidth, wideLineLen, -battingWideX, -wideLineOffset); //Batter-left
+  createLine(wideLineWidth, wideLineLen, -battingWideX, wideLineOffset); //Batter-right
+}
+
+function setupStumps() {
+  const battersEndStumps = new Stump(battingBackZ).drawStumps();
+  const bowlingEndStumps = new Stump(bowlingBackZ).drawStumps();
 }
