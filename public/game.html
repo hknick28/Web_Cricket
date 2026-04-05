@@ -8,39 +8,7 @@
     </style>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="/js/scene.js"></script>
-    <script src="/js/Stump.js"></script>
-    <script src="/js/pitch.js"></script>
-    <script src="/js/Ball.js"></script>
-    <script>
-      const socket = io();
 
-      let gammaOffset = 0;
-      let betaOffset = 0;
-      let latestGamma = 0;
-      let latestBeta = 0;
-
-      function calibrate() {
-        gammaOffset = latestGamma;
-        betaOffset = latestBeta;
-      }
-      socket.on("calibrate", () => {
-        calibrate();
-      });
-
-      //check phone orientation and update cube pos in camera
-      /* socket.on("orientation", (data) => {
-        latestGamma = data.gamma;
-        latestBeta = data.beta;
-        mesh.position.x = Math.max(
-          -3,
-          Math.min(3, (data.gamma - gammaOffset) / 10),
-        );
-        mesh.position.y = Math.max(
-          -3,
-          Math.min(3, -(data.beta - betaOffset) / 10),
-        ); // up/dow (phone tilt)
-      });*/
-    </script>
+    <script type="module" src="/js/main.js"></script>
   </body>
 </html>

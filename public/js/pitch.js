@@ -1,3 +1,8 @@
+import "./scene.js";
+
+import { scene } from "./scene.js";
+import { Stump } from "./stump.js";
+
 // Scale: 1 unit = 1 meter
 let width = 3.5;
 let height = 22.5;
@@ -13,8 +18,8 @@ let poppingCreaseOffset = 1.22;
 let wideLineLen = poppingCreaseOffset;
 let wideLineWidth = creaseLineDepth;
 
-let bowlingBackZ = -height / 2;
-let battingBackZ = height / 2;
+export let bowlingBackZ = -height / 2;
+export let battingBackZ = height / 2;
 
 let wideLineOffset = 1.2;
 
@@ -24,19 +29,20 @@ let battingPopping = battingBackZ - poppingCreaseOffset;
 
 let battingWideX = battingPopping + wideLineOffset / 2;
 
-const pitch = new THREE.PlaneGeometry(width, height);
-const surface = new THREE.MeshBasicMaterial({ color: 0xc8a96e });
-const mesh = new THREE.Mesh(pitch, surface);
-scene.add(mesh);
-mesh.rotation.x = rotate;
-//mesh.position.z = zOffset;
+export function initPitch() {
+  const pitch = new THREE.PlaneGeometry(width, height);
+  const surface = new THREE.MeshLambertMaterial({ color: 0xc8a96e });
+  const mesh = new THREE.Mesh(pitch, surface);
+  scene.add(mesh);
+  mesh.rotation.x = rotate;
 
-setupCrease();
-setupStumps();
+  setupCrease();
+  setupStumps();
+}
 
 function createLine(lineWidth, depth, z, x) {
   const line = new THREE.PlaneGeometry(lineWidth, depth);
-  const surface = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  const surface = new THREE.MeshLambertMaterial({ color: 0xffffff });
   const lineMesh = new THREE.Mesh(line, surface);
   lineMesh.position.set(x, 0.01, z);
   lineMesh.rotation.x = rotate;
