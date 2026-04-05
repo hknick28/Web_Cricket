@@ -34,7 +34,7 @@ class Stump {
       Stump.height,
       16,
     );
-    const material = new THREE.MeshBasicMaterial({ color: 0xf5f0e0 }); // white/cream
+    const material = new THREE.MeshLambertMaterial({ color: 0xf5f0e0 }); // white/cream
     const stump = new THREE.Mesh(geometry, material);
 
     stump.position.set(x, Stump.height / 2, this.zPos);

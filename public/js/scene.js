@@ -12,6 +12,14 @@ const camera = new THREE.PerspectiveCamera(
 );
 camera.position.set(0, 2, 16);
 camera.lookAt(0, 0, 0);
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+scene.add(ambientLight);
+
+const floodLight = new THREE.DirectionalLight(0xffffff, 1.2);
+floodLight.position.set(0, 20, 5);
+scene.add(floodLight);
+
 //Loop
 function animate() {
   requestAnimationFrame(animate);
