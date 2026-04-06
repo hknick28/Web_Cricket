@@ -1,4 +1,6 @@
-class Stump {
+import "./scene.js";
+import { scene } from "./scene.js";
+export class Stump {
   zPos; // pos on pitch
   constructor(z) {
     this.zPos = z;
