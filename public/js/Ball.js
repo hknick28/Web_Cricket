@@ -14,6 +14,7 @@ export class Ball {
   #xPos;
   #yPos;
   #zPos;
+  #vx;
   #bowler;
 
   constructor(key) {
@@ -56,6 +57,10 @@ export class Ball {
     this.#zPos = z;
   }
 
+  set vx(v) {
+    this.#vx = v;
+  }
+
   get x() {
     return this.#xPos;
   }
@@ -64,6 +69,10 @@ export class Ball {
   }
   get z() {
     return this.#zPos;
+  }
+
+  get vx() {
+    return this.#vx;
   }
 
   draw() {
@@ -79,13 +88,14 @@ export class Ball {
     this.#xPos = this.releaseX;
     this.#yPos = this.releaseY;
     this.#zPos = this.releaseZ;
+    this.#vx = 0;
     this.#bowler = FastBowler.instance;
-    this.#bowler.setupBowler();
+    this.#bowler.setupBowler(this);
   }
 
-  //
+  //Move ball each frame
   update(deltaTime) {
-    this.#bowler.updateBall(Ball.#instance, deltaTime);
+    this.#bowler.updateBall(this, deltaTime);
     if (this.z > -bowlingBackZ * 2) {
       this.reset();
     }

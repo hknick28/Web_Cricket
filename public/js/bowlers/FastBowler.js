@@ -27,6 +27,10 @@ export class FastBowler extends Bowler {
     return this.#line;
   }
 
+  get length() {
+    return this.#length;
+  }
+
   #setLine() {
     let line = getRandomKey(Line);
     this.#line = Line[line].getLine();
@@ -36,22 +40,32 @@ export class FastBowler extends Bowler {
     let length = getRandomKey(Length);
     this.#length = Length[length].getZ();
   }
-  setupBowler() {
+  setupBowler(ball) {
     //line
     this.#setLine();
     //length
     this.#setLength();
+
+    //Balls horizontal velocity (too acheive the line)
+    //v = d/t
+
+    const distZ = Math.abs(this.length - ball.releaseZ);
+    const timeToTarget = distZ / this.speed; //time
+
+    const distX = this.line - ball.releaseX; //distance
+
+    ball.vx = distX / timeToTarget;
   }
 
   get bouncePoint() {
-    // good length (4m from batters stumps)
-    return battingBackZ - this.#length;
+    return battingBackZ - this.length;
   }
   updateBall(ball, deltaTime) {
     let prevBallZ = ball.z;
 
     ball.zPos = prevBallZ + this.speed * deltaTime;
-    //ball.xPos = ball.x + this.line;
+
+    ball.xPos = ball.x + ball.vx * deltaTime;
 
     if (ball.z < this.bouncePoint) {
       this.setBallFallingPos(ball, deltaTime, prevBallZ - ball.z);
@@ -67,14 +81,15 @@ export class FastBowler extends Bowler {
       (this.bouncePoint - ball.releaseZ);
   }
   setBallRisingPos(ball, deltaTime, z) {
-    ball.yPos = -(
-      (ball.releaseY * (this.bouncePoint - ball.z)) /
-      (this.bouncePoint - ball.releaseZ)
-    );
+    ball.yPos =
+      -(
+        (ball.releaseY * (this.bouncePoint - ball.z)) /
+        (this.bouncePoint - ball.releaseZ)
+      ) * this.bounceHeight;
   }
 
   get bounceHeight() {
-    return 1;
+    return 0.8;
   }
 
   static get instance() {
