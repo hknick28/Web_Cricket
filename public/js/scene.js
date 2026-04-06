@@ -1,6 +1,6 @@
 import { Ball } from "./Ball.js";
 import { initPitch } from "./pitch.js";
-
+import { Bat } from "./Bat.js";
 export const scene = new THREE.Scene();
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -28,6 +28,7 @@ floodLight.position.set(0, 20, 5);
 scene.add(floodLight);
 
 const clock = new THREE.Clock();
+scene.add(Bat.instance.createBat());
 
 //Loop
 export function animate() {
