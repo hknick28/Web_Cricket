@@ -1,6 +1,8 @@
 import { Ball } from "./Ball.js";
 import { initPitch } from "./pitch.js";
 import { Bat } from "./Bat.js";
+import { phoneRotationData } from "./main.js";
+
 export const scene = new THREE.Scene();
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -37,6 +39,7 @@ export function animate() {
   const deltaTime = clock.getDelta(); // seconds since last frame
   Ball.instance.update(deltaTime); // update ball positon
 
+  Bat.instance.update();
   //render ground
   renderer.render(scene, camera);
 }

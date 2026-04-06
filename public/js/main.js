@@ -1,10 +1,18 @@
 // main.js
 import { animate } from "./scene.js"; // runs the file AND gives you animateimport "./stump.js"; // defines Stump class
 import { Ball } from "./Ball.js"; // defines Ball class
+import { Bat } from "./Bat.js";
 import "./scene.js";
 
 //socket stuff
 const socket = io();
+
+export const phoneRotationData = {
+  beta: 0,
+  gamma: 0,
+  gammaOffset: 0,
+  betaOffset: 0,
+};
 
 let gammaOffset = 0;
 let betaOffset = 0;
@@ -20,19 +28,19 @@ socket.on("calibrate", () => {
 });
 
 // start loop here, after everything is loaded
-//check phone orientation and update cube pos in camera
-/* socket.on("orientation", (data) => {
-        latestGamma = data.gamma;
-        latestBeta = data.beta;
-        mesh.position.x = Math.max(
-          -3,
-          Math.min(3, (data.gamma - gammaOffset) / 10),
-        );
-        mesh.position.y = Math.max(
-          -3,
-          Math.min(3, -(data.beta - betaOffset) / 10),
-        ); // up/dow (phone tilt)
-      });*/
-
 Ball.instance; // create ball
 animate(); // start loop
+
+// update bat
+socket.on("orientation", (data) => {
+  latestGamma = data.gamma;
+  latestBeta = data.beta;
+  phoneRotationData.gamma = data.gamma; // y
+  phoneRotationData.beta = data.beta; // x
+
+  Bat.instance.setAngles(
+    phoneRotationData.beta,
+    /*phoneRotationData.alpha*/ 0,
+    phoneRotationData.gamma,
+  );
+});

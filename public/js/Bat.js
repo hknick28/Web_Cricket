@@ -6,10 +6,15 @@ export class Bat {
   static #instance = new Bat(Bat.#key);
   #bat;
 
+  #xRotation;
+  #yRotation;
+  #zRotation;
+
   constructor(key) {
     if (key != Bat.#key) {
       throw new Error("Use Bat.getInstance()!");
     }
+    this.setAngles(0, 0, 0);
   }
 
   createBat() {
@@ -41,6 +46,19 @@ export class Bat {
     mesh.position.y = 1.1; // ontop of blade
 
     bat.add(mesh);
+  }
+
+  setAngles(x, y, z) {
+    this.#xRotation = (x * Math.PI) / 180;
+    this.#yRotation = (y * Math.PI) / 180;
+    this.#zRotation = (z * Math.PI) / 180;
+    if (this.#bat == null) {
+      return;
+    }
+  }
+
+  update() {
+    this.#bat.rotation.set(this.#xRotation, this.#yRotation, this.#zRotation);
   }
 
   static get instance() {
