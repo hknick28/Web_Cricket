@@ -22,7 +22,7 @@ export class FastBowler extends Bowler {
   }
   get bouncePoint() {
     // good length (4m from batters stumps)
-    return battingBackZ - 4;
+    return battingBackZ - 8;
   }
   updateBall(ball, deltaTime) {
     let prevBallZ = ball.z;
@@ -44,14 +44,14 @@ export class FastBowler extends Bowler {
       (this.bouncePoint - ball.releaseZ);
   }
   setBallRisingPos(ball, deltaTime, z) {
-    const t = (ball.z - this.bouncePoint) / (battingBackZ - this.bouncePoint);
-
-    // sin arc
-    ball.yPos = this.bounceHeight * Math.sin(Math.PI * t);
+    ball.yPos = -(
+      (ball.releaseY * (this.bouncePoint - ball.z)) /
+      (this.bouncePoint - ball.releaseZ)
+    );
   }
 
   get bounceHeight() {
-    return 0.8;
+    return 1;
   }
 
   static get instance() {
