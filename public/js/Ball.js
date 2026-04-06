@@ -80,6 +80,7 @@ export class Ball {
     this.#yPos = this.releaseY;
     this.#zPos = this.releaseZ;
     this.#bowler = FastBowler.instance;
+    this.#bowler.setupBowler();
   }
 
   //

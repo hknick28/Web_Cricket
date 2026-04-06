@@ -21,7 +21,7 @@ let wideLineWidth = creaseLineDepth;
 export let bowlingBackZ = -height / 2;
 export let battingBackZ = height / 2;
 
-let wideLineOffset = 1.2;
+export let wideLineOffset = 1.2;
 
 // near end (batter's end)
 let bowlingPopping = bowlingBackZ + poppingCreaseOffset;

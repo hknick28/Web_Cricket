@@ -33,4 +33,7 @@ export class Bowler {
   get bounceHeight() {
     throw new Error("Not implemented");
   }
+  setupBowler() {
+    throw new Error("Not implemented");
+  }
 }

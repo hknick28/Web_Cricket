@@ -1,10 +1,17 @@
 import "./Bowler.js";
 import { Bowler } from "./Bowler.js";
 import { battingBackZ } from "../pitch.js";
+import { getRandomKey } from "../Constants.js";
+import { Line } from "../Constants.js";
+import { Length } from "../Constants.js";
 
 export class FastBowler extends Bowler {
   static #key = Symbol();
   static #instance = new FastBowler(FastBowler.#key);
+
+  #line;
+  #length;
+
   constructor(key) {
     super(key);
     if (key != FastBowler.#key) {
@@ -17,12 +24,28 @@ export class FastBowler extends Bowler {
     return 90 / 3.6;
   }
   get line() {
-    // middle stump
-    return 0;
+    return this.#line;
   }
+
+  #setLine() {
+    let line = getRandomKey(Line);
+    this.#line = Line[line].getLine();
+  }
+
+  #setLength() {
+    let length = getRandomKey(Length);
+    this.#length = Length[length].getZ();
+  }
+  setupBowler() {
+    //line
+    this.#setLine();
+    //length
+    this.#setLength();
+  }
+
   get bouncePoint() {
     // good length (4m from batters stumps)
-    return battingBackZ - 8;
+    return battingBackZ - this.#length;
   }
   updateBall(ball, deltaTime) {
     let prevBallZ = ball.z;
