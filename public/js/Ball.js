@@ -85,6 +85,9 @@ export class Ball {
   //
   update(deltaTime) {
     this.#bowler.updateBall(Ball.#instance, deltaTime);
+    if (this.z > -bowlingBackZ * 2) {
+      this.reset();
+    }
     this.#mesh.position.set(this.#xPos, this.#yPos, this.#zPos);
   }
 

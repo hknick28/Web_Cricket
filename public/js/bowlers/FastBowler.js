@@ -25,13 +25,33 @@ export class FastBowler extends Bowler {
     return battingBackZ - 4;
   }
   updateBall(ball, deltaTime) {
-    ball.zPos = ball.z + this.speed * deltaTime;
+    let prevBallZ = ball.z;
+
+    ball.zPos = prevBallZ + this.speed * deltaTime;
     //ball.xPos = ball.x + this.line;
 
-    // fall linearly from release height to 0
-    /*ball.yPos =
+    if (ball.z < this.bouncePoint) {
+      this.setBallFallingPos(ball, deltaTime, prevBallZ - ball.z);
+    } else {
+      this.setBallRisingPos(ball, deltaTime, prevBallZ - ball.z);
+    }
+  }
+
+  setBallFallingPos(ball, deltaTime, z) {
+    //return negative vector
+    ball.yPos =
       (ball.releaseY * (this.bouncePoint - ball.z)) /
-      (this.BouncePoint - ball.release);*/
+      (this.bouncePoint - ball.releaseZ);
+  }
+  setBallRisingPos(ball, deltaTime, z) {
+    const t = (ball.z - this.bouncePoint) / (battingBackZ - this.bouncePoint);
+
+    // sin arc
+    ball.yPos = this.bounceHeight * Math.sin(Math.PI * t);
+  }
+
+  get bounceHeight() {
+    return 0.8;
   }
 
   static get instance() {

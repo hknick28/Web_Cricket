@@ -15,7 +15,22 @@ export class Bowler {
     throw new Error("Not implemented");
   }
 
+  setBallFallingPos(ball, deltaTime, z) {
+    throw new Error("Not implemented");
+  }
+  setBallRisingPos(ball, deltaTime, z) {
+    throw new Error("Not implemented");
+  }
+
+  static get gravityConst() {
+    return -9.81;
+  }
+
   static getInstance() {
+    throw new Error("Not implemented");
+  }
+
+  get bounceHeight() {
     throw new Error("Not implemented");
   }
 }
