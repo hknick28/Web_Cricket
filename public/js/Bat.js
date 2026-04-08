@@ -72,7 +72,7 @@ export class Bat {
     return this.#instance;
   }
 
-  checkSwing(ball) {
+  checkSwing(ball, speed) {
     if (!this.#canSwing) {
       console.log("Cannot swing again!");
       return;
@@ -84,11 +84,16 @@ export class Bat {
     ball.speed = -ball.speed;
     ball.hit = true;
   }
-  #hit(ballZ) {
-    // 1. Get the names of your zones
-    // 2. Find the zone where the checkBounds returns true
+  #hit(ballZ, speed) {
+    let tollerence = 1;
+    if (speed < 55) {
+      tollerence = 1.5;
+    } else {
+      tollerence = 1.2;
+    }
+
     const hitZone = Object.values(Timing).find((zone) =>
-      zone.checkBounds(ballZ),
+      zone.checkBounds(ballZ, tollerence),
     );
 
     console.log("Before Hit: " + this.#hitZone.label);
