@@ -18,6 +18,11 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("orientation", data);
   });
 
+  socket.on("swing", (data) => {
+    // console.log("Swing detected, Data from phone:", data);
+    socket.broadcast.emit("swing", data);
+  });
+
   socket.on("calibrate", () => {
     socket.broadcast.emit("calibrate");
   });

@@ -5,6 +5,8 @@
     <script>
       const socket = io();
 
+      let isSwinging = false;
+
       // event listener
       function startSensors() {
         window.addEventListener("deviceorientation", (event) => {
@@ -22,6 +24,29 @@
             gamma: event.gamma,
           });
         });
+
+        window.addEventListener("devicemotion", (event) => {
+          let x = event.acceleration.x;
+          let y = event.acceleration.y;
+          let z = event.acceleration.z;
+
+          let acc = Math.sqrt(x ** 2 + y ** 2 + z ** 2);
+
+          document.getElementById("acceleration").innerHTML =
+            /*"x: " + x + " y: " + y + " z: " + z + */ " Total Acceleration: " +
+            acc;
+
+          if (acc < 25 || isSwinging) {
+            return;
+          }
+          inSwinging = true;
+          socket.emit("swing", {
+            batAcceleration: acc,
+          });
+          setTimeout(() => {
+            isSwinging = false;
+          }, 500);
+        });
       }
 
       //calibrate default gamma and beta values for batting
@@ -36,5 +61,6 @@
     <button onclick="startSensors()">Start</button>
     <button onClick="calibrate()">calibrate</button>
     <div id="output">Waiting for sensor...</div>
+    <div id="acceleration">Acceleration: Waiting...</div>
   </body>
 </html>

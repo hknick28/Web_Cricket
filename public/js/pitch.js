@@ -25,7 +25,7 @@ export let wideLineOffset = 1.2;
 
 // near end (batter's end)
 let bowlingPopping = bowlingBackZ + poppingCreaseOffset;
-let battingPopping = battingBackZ - poppingCreaseOffset;
+export let battingPopping = battingBackZ - poppingCreaseOffset;
 
 let battingWideX = battingPopping + wideLineOffset / 2;
 
