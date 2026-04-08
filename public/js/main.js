@@ -32,7 +32,7 @@ Ball.instance; // create ball
 animate(); // start loop
 
 // update bat
-socket.on("orientation", (data) => {
+/*socket.on("orientation", (data) => {
   latestGamma = data.gamma;
   latestBeta = data.beta;
   phoneRotationData.gamma = data.gamma; // y
@@ -40,7 +40,12 @@ socket.on("orientation", (data) => {
 
   Bat.instance.setAngles(
     phoneRotationData.beta,
-    /*phoneRotationData.alpha*/ 0,
-    phoneRotationData.gamma,
+    phoneRotationData.alpha 0,
+    phoneRotationData.gamma 0,
   );
+});*/
+
+socket.on("swing", (data) => {
+  let acceleration = data;
+  Bat.instance.checkSwing(Ball.instance);
 });

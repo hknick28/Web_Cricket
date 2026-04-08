@@ -1,4 +1,5 @@
 import { battingPopping } from "./pitch.js";
+import { Timing } from "./Constants.js";
 
 export class Bat {
   static #key = "bat";
@@ -10,11 +11,14 @@ export class Bat {
   #yRotation;
   #zRotation;
 
+  #hitZone;
+
   constructor(key) {
     if (key != Bat.#key) {
       throw new Error("Use Bat.getInstance()!");
     }
     this.setAngles(0, 0, 0);
+    this.reset();
   }
 
   createBat() {
@@ -26,7 +30,7 @@ export class Bat {
     //Handle
     this.#createHandel(this.#bat);
 
-    this.#bat.position.set(0, 0, battingPopping); // Place at the batter's end
+    this.#bat.position.set(0, 1, battingPopping); // Place at the batter's end
     return this.#bat;
   }
 
@@ -34,7 +38,7 @@ export class Bat {
     const bladeGeo = new THREE.BoxGeometry(0.12, 0.9, 0.05);
     const material = new THREE.MeshStandardMaterial({ color: 0x8b4513 });
     const mesh = new THREE.Mesh(bladeGeo, material);
-    mesh.position.y = 0.45; // Shift up
+    mesh.position.y = -0.45; // Shift up
 
     bat.add(mesh);
   }
@@ -43,15 +47,17 @@ export class Bat {
     const handelGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.4);
     const material = new THREE.MeshStandardMaterial({ color: 0x333333 });
     const mesh = new THREE.Mesh(handelGeo, material);
-    mesh.position.y = 1.1; // ontop of blade
+    mesh.position.y = 0.1; // ontop of blade
 
     bat.add(mesh);
   }
 
   setAngles(x, y, z) {
-    this.#xRotation = (x * Math.PI) / 180;
-    this.#yRotation = (y * Math.PI) / 180;
-    this.#zRotation = (z * Math.PI) / 180;
+    let xOffset = Math.PI / 2;
+    let toRad = Math.PI / 180;
+    this.#xRotation = x * toRad + xOffset;
+    this.#yRotation = y * toRad;
+    this.#zRotation = z * toRad;
     if (this.#bat == null) {
       return;
     }
@@ -63,5 +69,34 @@ export class Bat {
 
   static get instance() {
     return this.#instance;
+  }
+
+  checkSwing(ball) {
+    if (!this.#hit(ball.z)) {
+      return;
+    }
+    ball.speed = -ball.speed;
+    ball.hit = true;
+  }
+  #hit(ballZ) {
+    // 1. Get the names of your zones
+    // 2. Find the zone where the checkBounds returns true
+    const hitZone = Object.values(Timing).find((zone) =>
+      zone.checkBounds(ballZ),
+    );
+
+    console.log("Before Hit: " + this.#hitZone.label);
+    if (hitZone == null) {
+      console.log("MISSED!");
+      return false;
+    }
+    this.#hitZone = hitZone;
+
+    console.log("HIT!: " + this.#hitZone.label);
+    return true;
+  }
+
+  reset() {
+    this.#hitZone = Timing.NONE;
   }
 }

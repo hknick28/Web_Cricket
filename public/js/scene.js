@@ -1,5 +1,5 @@
 import { Ball } from "./Ball.js";
-import { initPitch } from "./pitch.js";
+import { battingBackZ, battingPopping, initPitch } from "./pitch.js";
 import { Bat } from "./Bat.js";
 import { phoneRotationData } from "./main.js";
 
@@ -17,7 +17,7 @@ const camera = new THREE.PerspectiveCamera(
 );
 
 //was 0, 2, 16
-camera.position.set(0, 2, 16);
+camera.position.set(0, 2, battingPopping);
 camera.lookAt(0, 0, 0);
 
 initPitch();

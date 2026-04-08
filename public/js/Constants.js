@@ -1,4 +1,5 @@
 import { battingBackZ } from "./pitch.js";
+import { battingPopping } from "./pitch.js";
 import { wideLineOffset } from "./pitch.js";
 import { Stump } from "./stump.js";
 
@@ -56,6 +57,29 @@ export const Line = Object.freeze({
       let range = wideLineOffset - Stump.xOffset;
       return Math.random() * range + Stump.xOffset;
     },
+  },
+});
+
+let zEarly0 = battingPopping - 0.5; //front line
+let zEarly1 = zEarly0 - 1; //backline
+
+let zPerfect0 = battingPopping; //front
+let zPerfect1 = zEarly0; //back
+
+export const Timing = Object.freeze({
+  EARLY: {
+    label: "early",
+    checkBounds: (z) => z <= zEarly0 && z >= zEarly1,
+  },
+
+  PERFECT: {
+    label: "perfect",
+    checkBounds: (z) => z <= zPerfect0 && z >= zEarly0,
+  },
+
+  NONE: {
+    label: "none",
+    checkBounds: (z) => false,
   },
 });
 
