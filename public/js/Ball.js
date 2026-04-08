@@ -122,8 +122,6 @@ export class Ball {
     //Basic hit simulation
     this.zPos = prevBallZ + this.speed * deltaTime;
 
-    console.log("Ball Has Been Hit!");
-
     if (this.z < bowlingBackZ - 10) {
       this.reset();
       Bat.instance.reset();

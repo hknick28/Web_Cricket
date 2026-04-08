@@ -19,7 +19,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("swing", (data) => {
-    console.log("Swing detected, Data from phone:", data);
+    // console.log("Swing detected, Data from phone:", data);
     socket.broadcast.emit("swing", data);
   });
 
