@@ -11,6 +11,7 @@ export class Bat {
   #yRotation;
   #zRotation;
 
+  #canSwing;
   #hitZone;
 
   constructor(key) {
@@ -72,6 +73,11 @@ export class Bat {
   }
 
   checkSwing(ball) {
+    if (!this.#canSwing) {
+      console.log("Cannot swing again!");
+      return;
+    }
+    this.#canSwing = false;
     if (!this.#hit(ball.z)) {
       return;
     }
@@ -98,5 +104,6 @@ export class Bat {
 
   reset() {
     this.#hitZone = Timing.NONE;
+    this.#canSwing = true;
   }
 }
