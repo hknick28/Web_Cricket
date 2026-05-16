@@ -46,6 +46,6 @@ animate(); // start loop
 });*/
 
 socket.on("swing", (data) => {
-  let acceleration = data;
-  Bat.instance.checkSwing(Ball.instance);
+  let acceleration = data.batAcceleration;
+  Bat.instance.checkSwing(Ball.instance, acceleration);
 });

@@ -61,26 +61,25 @@ export const Line = Object.freeze({
 });
 
 let windowLength = 1.8; //meters
-let zPerfectLengthStart = battingPopping; //back
+let zPerfectLengthEnd = battingPopping; //back
 
 export const Timing = Object.freeze({
   EARLY: {
     label: "early",
     checkBounds: (z, tollerence = 1) => {
-      let zPerfectLengthEnd = zPerfectLengthStart - windowLength * tollerence;
-      z <= zPerfectLengthEnd && z >= zPerfectLengthEnd;
+      let zPerfectLengthStart = zPerfectLengthEnd - windowLength * tollerence;
+      return (
+        z <= zPerfectLengthEnd &&
+        z >= zPerfectLengthEnd - windowLength * tollerence
+      );
     },
   },
 
   PERFECT: {
     label: "perfect",
     checkBounds: (z, tollerence = 1) => {
-      let zEarlyLengthStart =
-        zPerfectLengthStart -
-        windowLength * tollerence -
-        windowLength * tollerence;
-      let zEarlyLengthEnd = zEarlyLengthStart - windowLength * tollerence;
-      return z <= zEarlyLengthStart && z >= zEarlyLengthEnd;
+      let zPerfectLengthStart = zPerfectLengthEnd - windowLength * tollerence;
+      return z <= zPerfectLengthEnd && z >= zPerfectLengthStart;
     },
   },
 

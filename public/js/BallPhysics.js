@@ -20,7 +20,7 @@ export class BallPhysics {
 
     //accelerstions a = f/m
     const ax = -(vx / v) * (drag / mass); //
-    const ay = -this.gravity - (vy / v) * (drag / mass);
+    const ay = -(vy / v) * (drag / mass) - this.gravity;
     const az = -(vz / v) * (drag / mass);
 
     //console.log("ax: " + ax + "ay: " + ay + "az: " + az);

@@ -21,7 +21,7 @@ export class FastBowler extends Bowler {
   }
 
   get speed() {
-    return 90;
+    return 110;
   }
   get line() {
     return this.#line;
@@ -47,8 +47,10 @@ export class FastBowler extends Bowler {
     this.#setLength();
 
     //Balls horizontal velocity (too acheive the line)
-    //v = d/t
+    ball.speed = this.speed;
 
+    //v = d/t
+    ball.vz = ball.speed;
     const distZ = Math.abs(this.length - ball.releaseZ);
     const timeToTarget = distZ / ball.speed; //time
 
@@ -63,7 +65,7 @@ export class FastBowler extends Bowler {
   updateBall(ball, deltaTime) {
     let prevBallZ = ball.z;
 
-    ball.zPos = prevBallZ + ball.speed * deltaTime;
+    ball.zPos = prevBallZ + ball.vz * deltaTime;
 
     ball.xPos = ball.x + ball.vx * deltaTime;
 

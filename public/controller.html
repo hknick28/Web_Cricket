@@ -25,6 +25,9 @@
           });
         });
 
+        let isSwinging = false;
+        let swingSamples = [];
+
         window.addEventListener("devicemotion", (event) => {
           let x = event.acceleration.x;
           let y = event.acceleration.y;
@@ -33,19 +36,31 @@
           let acc = Math.sqrt(x ** 2 + y ** 2 + z ** 2);
 
           document.getElementById("acceleration").innerHTML =
-            /*"x: " + x + " y: " + y + " z: " + z + */ " Total Acceleration: " +
-            acc;
+            "Total Acceleration: " + acc.toFixed(2);
 
-          if (acc < 25 || isSwinging) {
+          // If already collecting a swing, keep adding samples
+          if (isSwinging) {
+            swingSamples.push(acc);
             return;
           }
-          inSwinging = true;
-          socket.emit("swing", {
-            batAcceleration: acc,
-          });
+
+          // Threshold crossed — start collecting
+          if (acc < 20) return;
+
+          isSwinging = true;
+          swingSamples = [acc]; // include this first spike
+
           setTimeout(() => {
+            // Swing window is over — find the peak and send it
+            const peakBatspeed = Math.max(...swingSamples);
+
+            socket.emit("swing", {
+              batAcceleration: peakBatspeed,
+            });
+
+            swingSamples = [];
             isSwinging = false;
-          }, 500);
+          }, 100); // 100ms collection window
         });
       }
 
