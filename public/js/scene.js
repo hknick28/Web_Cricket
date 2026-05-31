@@ -2,6 +2,7 @@ import { Ball } from "./Ball.js";
 import { battingBackZ, battingPopping, initPitch } from "./pitch.js";
 import { Bat } from "./Bat.js";
 import { phoneRotationData } from "./main.js";
+import { game_state, getCurrentGameState, setGameState } from "./appState.js";
 
 export const scene = new THREE.Scene();
 const renderer = new THREE.WebGLRenderer();
@@ -35,6 +36,10 @@ scene.add(Bat.instance.createBat());
 //Loop
 export function animate() {
   requestAnimationFrame(animate);
+
+  if (getCurrentGameState() != game_state.PLAYING) {
+    return;
+  }
 
   const deltaTime = clock.getDelta(); // seconds since last frame
   Ball.instance.update(deltaTime); // update ball positon

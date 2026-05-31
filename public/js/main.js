@@ -2,10 +2,19 @@
 import { animate } from "./scene.js"; // runs the file AND gives you animateimport "./stump.js"; // defines Stump class
 import { Ball } from "./Ball.js"; // defines Ball class
 import { Bat } from "./Bat.js";
+import { game_state, setGameState } from "./appState.js";
 import "./scene.js";
 
 //socket stuff
 const socket = io();
+
+// Handle menu buttons
+document.getElementById("startBtn")?.addEventListener("click", () => {
+  setGameState(game_state.PLAYING);
+  document.getElementById("menuContainer").style.display = "none";
+  Ball.instance; // create ball
+  animate();
+});
 
 export const phoneRotationData = {
   beta: 0,
