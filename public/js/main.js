@@ -2,8 +2,9 @@
 import { animate } from "./scene.js"; // runs the file AND gives you animateimport "./stump.js"; // defines Stump class
 import { Ball } from "./Ball.js"; // defines Ball class
 import { Bat } from "./Bat.js";
-import { game_state, setGameState } from "./appState.js";
+import { currentGameState, game_state, setGameState } from "./appState.js";
 import "./scene.js";
+import { startNewCapture, proccessDataSample } from "./capture.js";
 
 //socket stuff
 const socket = io();
@@ -14,6 +15,11 @@ document.getElementById("startBtn")?.addEventListener("click", () => {
   document.getElementById("menuContainer").style.display = "none";
   Ball.instance; // create ball
   animate();
+});
+
+// handle calibration button
+document.getElementById("calibrateBtn")?.addEventListener("click", () => {
+  setGameState(game_state.CALIBRATING);
 });
 
 export const phoneRotationData = {
@@ -40,21 +46,17 @@ socket.on("calibrate", () => {
 Ball.instance; // create ball
 animate(); // start loop
 
-// update bat
-/*socket.on("orientation", (data) => {
-  latestGamma = data.gamma;
-  latestBeta = data.beta;
-  phoneRotationData.gamma = data.gamma; // y
-  phoneRotationData.beta = data.beta; // x
+// Log orientation data
+socket.on("orientation", (data) => {
+  proccessDataSample(data.alpha, data.beta, data.gamma);
+});
 
-  Bat.instance.setAngles(
-    phoneRotationData.beta,
-    phoneRotationData.alpha 0,
-    phoneRotationData.gamma 0,
-  );
-});*/
-
+// Swing for game
 socket.on("swing", (data) => {
-  let acceleration = data.batAcceleration;
-  Bat.instance.checkSwing(Ball.instance, acceleration);
+  if (currentGameState === game_state.PLAYING) {
+    let acceleration = data.batAcceleration;
+    Bat.instance.checkSwing(Ball.instance, acceleration);
+  } else if (currentGameState === game_state.CALIBRATING) {
+    startNewCapture();
+  }
 });
