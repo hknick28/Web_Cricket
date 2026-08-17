@@ -30,13 +30,13 @@ export class Player {
     return this.#ballsFaced;
   }
 
-  //setters
-  set updateScore(score) {
-    this.#score += score;
+  addSix() {
+    this.#score += 6;
   }
 
   updateBallsFaced() {
     this.#ballsFaced += 1;
     console.log(`Balls faced: ${this.#ballsFaced}`);
+    console.log(`Current score: ${this.#score}`);
   }
 }
