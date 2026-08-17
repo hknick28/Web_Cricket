@@ -34,7 +34,7 @@ export class Ball {
   #ballBoundingBox;
 
   #hasBounced;
-  #boundaryRadius = 70;
+  #boundaryRadius = 65; // 65m boundaries
 
   constructor(key) {
     if (key !== Ball.#internalKey) {
@@ -206,10 +206,10 @@ export class Ball {
 
     // find speed of ball after being hit
     let totalSpeed = Math.sqrt(this.vx ** 2 + this.vy ** 2 + this.vz ** 2);
-    console.log("Ball speed after being hit: " + totalSpeed);
 
     //reset if there is no more velocity, and ball is not bouncing
     if (totalSpeed < 1) {
+      console.log("Ball has stopped moving at: " + this.z);
       this.reset();
       Bat.instance.reset();
       Player.instance.updateBallsFaced();
@@ -239,7 +239,6 @@ export class Ball {
     let ballDist = Math.abs(this.#zPos); //make sure position is positive
 
     if (ballDist < this.#boundaryRadius) {
-      console.log("no boundary!");
       return;
     }
 
@@ -248,6 +247,12 @@ export class Ball {
       console.log("ball bounced, four! Total score: " + Player.instance.score);
 
       Player.instance.addFour();
+      console.log(
+        "Balls Z was: " +
+          ballDist +
+          " and boundary radius was: " +
+          this.#boundaryRadius,
+      );
     } else {
       //ball resets when bounced, so we can assume that if it has crossed the boundary, it is a 6
       Player.instance.addSix(); // add 6 runs to score
