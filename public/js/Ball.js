@@ -14,6 +14,9 @@ import { currentGameState, game_state, setGameState } from "./appState.js";
 
 import { Player } from "./Player.js";
 
+import { Fielding } from "./Fielding.js";
+import { RunCalculator } from "./RunCalculator.js";
+
 export class Ball {
   static #internalKey = "single ball";
   static #instance = new Ball(Ball.#internalKey);
@@ -210,6 +213,12 @@ export class Ball {
     //reset if there is no more velocity, and ball is not bouncing
     if (totalSpeed < 1) {
       console.log("Ball has stopped moving at: " + this.z);
+      const retrievalTime = Fielding.estimateRetrievalTime(this.x, this.z);
+      const runs = RunCalculator.runsFor(retrievalTime);
+      if (runs > 0) {
+        Player.instance.addRuns(runs);
+        console.log(runs + " run(s) taken.");
+      }
       this.reset();
       Bat.instance.reset();
       Player.instance.updateBallsFaced();
