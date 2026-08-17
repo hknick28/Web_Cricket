@@ -32,6 +32,14 @@ document.getElementById("restartBtn")?.addEventListener("click", () => {
   document.getElementById("gameOverModal").style.display = "none";
 });
 
+// handle exit button
+document.getElementById("exitBtn")?.addEventListener("click", () => {
+  console.log("Game exited");
+  setGameState(game_state.MENU);
+  document.getElementById("gameOverModal").style.display = "none";
+  document.getElementById("menuContainer").style.display = "flex";
+});
+
 export const phoneRotationData = {
   beta: 0,
   gamma: 0,
