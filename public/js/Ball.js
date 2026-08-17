@@ -12,6 +12,8 @@ import { battersEndStumps } from "./pitch.js";
 
 import { currentGameState, game_state, setGameState } from "./appState.js";
 
+import { Player } from "./Player.js";
+
 export class Ball {
   static #internalKey = "single ball";
   static #instance = new Ball(Ball.#internalKey);
@@ -186,6 +188,7 @@ export class Ball {
       if (this.z > -bowlingBackZ * 2) {
         this.reset();
         Bat.instance.reset();
+        Player.instance.updateBallsFaced();
       }
     }
     this.#mesh.position.set(this.#xPos, this.#yPos, this.#zPos);
@@ -198,6 +201,7 @@ export class Ball {
     if (this.y < 0) {
       this.reset();
       Bat.instance.reset();
+      Player.instance.updateBallsFaced();
     }
   }
 
@@ -207,6 +211,8 @@ export class Ball {
 
   // Check for collision with stumps, only if ball has not been hit by the bat
   #checkCollisionWithStumps() {
+    if (this.z < 0) return;
+
     this.#ballBoundingBox = new THREE.Box3().setFromObject(this.#mesh);
     const stumpsBoundingBox = new THREE.Box3().setFromObject(
       battersEndStumps.group,

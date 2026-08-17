@@ -4,6 +4,7 @@ import { Ball } from "./Ball.js"; // defines Ball class
 import { Bat } from "./Bat.js";
 import { currentGameState, game_state, setGameState } from "./appState.js";
 import "./scene.js";
+import { Player } from "./Player.js";
 //import { startNewCapture, proccessDataSample } from "./capture.js";
 
 //socket stuff
@@ -26,8 +27,7 @@ document.getElementById("calibrateBtn")?.addEventListener("click", () => {
 // handle game over button
 document.getElementById("restartBtn")?.addEventListener("click", () => {
   console.log("Game restarted");
-  Ball.instance.reset();
-  Bat.instance.reset();
+  resetGame();
   setGameState(game_state.PLAYING);
   document.getElementById("gameOverModal").style.display = "none";
 });
@@ -35,6 +35,7 @@ document.getElementById("restartBtn")?.addEventListener("click", () => {
 // handle exit button
 document.getElementById("exitBtn")?.addEventListener("click", () => {
   console.log("Game exited");
+  resetGame();
   setGameState(game_state.MENU);
   document.getElementById("gameOverModal").style.display = "none";
   document.getElementById("menuContainer").style.display = "flex";
@@ -78,3 +79,9 @@ socket.on("swing", (data) => {
     startNewCapture();
   }
 });
+
+function resetGame() {
+  Ball.instance.reset();
+  Bat.instance.reset();
+  Player.instance.reset();
+}
