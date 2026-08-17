@@ -1,7 +1,11 @@
+import { Ball } from "./Ball.js";
+
 export class BallPhysics {
   static gravity = 9.81; // m/s^2
   static air_desity = 1.225; // kg/m^3
-  static drag_coeff = 0.47; //typical for a ball of any size
+  static drag_coeff = 1.8; //typical for a ball of any size
+  static damping = 0.5; //damping factor for energy loss when bouncing
+  static friction = 1.4;
 
   static update(ball, dt) {
     const vx = ball.vx;
@@ -26,14 +30,36 @@ export class BallPhysics {
     //console.log("ax: " + ax + "ay: " + ay + "az: " + az);
     //console.log("vx: " + vx + "vy: " + vy + "vz: " + vz);
 
+    // update ball position values
+    let newX = ball.x + vx * dt;
+    let newY = ball.y + vy * dt;
+    let newZ = ball.z + vz * dt;
+
+    //update new ball accelerations
+    let newVx = vx + ax * dt;
+    let newVy = vy + ay * dt;
+    let newVz = vz + az * dt;
+
+    //Apply Bounce and Friction
+    if (newY <= ball.radius) {
+      newY = ball.radius; //reset to ground level
+      Ball.instance.bounce(); //bounce the ball
+
+      //apply damping
+      newVy = -newVy * this.damping;
+
+      //apply friction
+      newVz = newVz * this.friction;
+    }
+
     //update ball pos
-    ball.xPos = ball.x + vx * dt;
-    ball.yPos = ball.y + vy * dt;
-    ball.zPos = ball.z + vz * dt;
+    ball.xPos = newX;
+    ball.yPos = newY;
+    ball.zPos = newZ;
 
     //update ball accelerations
-    ball.vx = vx + ax * dt;
-    ball.vy = vy + ay * dt;
-    ball.vz = vz + az * dt;
+    ball.vx = newVx;
+    ball.vy = newVy;
+    ball.vz = newVz;
   }
 }
