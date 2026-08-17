@@ -53,4 +53,8 @@ export class Stump {
   get bounds() {
     return this.#bounds;
   }
+
+  get group() {
+    return this.#group;
+  }
 }

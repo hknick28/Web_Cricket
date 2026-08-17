@@ -205,7 +205,9 @@ export class Ball {
   // Check for collision with stumps, only if ball has not been hit by the bat
   #checkCollisionWithStumps() {
     this.#ballBoundingBox = new THREE.Box3().setFromObject(this.#mesh);
-    const stumpsBoundingBox = new THREE.Box3().setFromObject(battersEndStumps);
+    const stumpsBoundingBox = new THREE.Box3().setFromObject(
+      battersEndStumps.group,
+    );
 
     if (!this.#ballBoundingBox.intersectsBox(stumpsBoundingBox)) {
       return false;
