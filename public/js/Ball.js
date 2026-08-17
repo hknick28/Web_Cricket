@@ -6,6 +6,7 @@ import { bowlingBackZ } from "./pitch.js";
 import { FastBowler } from "./bowlers/FastBowler.js";
 import { scene } from "./scene.js";
 import { Bat } from "./Bat.js";
+import { BallPhysics } from "./BallPhysics.js";
 
 export class Ball {
   static #internalKey = "single ball";
@@ -16,6 +17,11 @@ export class Ball {
   #yPos;
   #zPos;
   #vx;
+  #vy;
+  #vz;
+  #ax;
+  #ay;
+  #az;
   #bowler;
   #speed;
   #beenHit;
@@ -64,6 +70,26 @@ export class Ball {
     this.#vx = v;
   }
 
+  set vy(v) {
+    this.#vy = v;
+  }
+
+  set vz(v) {
+    this.#vz = v;
+  }
+
+  set ax(v) {
+    this.#ax = v;
+  }
+
+  set ay(v) {
+    this.#ay = v;
+  }
+
+  set az(v) {
+    this.#az = v;
+  }
+
   set hit(hit) {
     this.#beenHit = hit;
   }
@@ -82,6 +108,35 @@ export class Ball {
     return this.#vx;
   }
 
+  get vy() {
+    return this.#vy;
+  }
+
+  get vz() {
+    return this.#vz;
+  }
+
+  get ax() {
+    return this.#ax;
+  }
+
+  get ay() {
+    return this.#ay;
+  }
+
+  get az() {
+    return this.#az;
+  }
+
+  // Add these getters inside your Ball class
+  get radius() {
+    return 0.036;
+  }
+
+  get mass() {
+    return 0.16;
+  }
+
   draw() {
     const geometry = new THREE.SphereGeometry(0.072, 32, 32);
     const material = new THREE.MeshStandardMaterial({ color: 0x8b0000 });
@@ -95,7 +150,15 @@ export class Ball {
     this.#xPos = this.releaseX;
     this.#yPos = this.releaseY;
     this.#zPos = this.releaseZ;
+
     this.#vx = 0;
+    this.#vy = 0;
+    this.#vz = 0;
+
+    this.#ax = 0;
+    this.#ay = 0;
+    this.#az = 0;
+
     this.#beenHit = false;
     this.#bowler = FastBowler.instance;
     this.#bowler.setupBowler(this);
@@ -118,11 +181,9 @@ export class Ball {
 
   #hitUpdate(deltaTime) {
     //reverse the speed
-    let prevBallZ = this.z;
-    //Basic hit simulation
-    this.zPos = prevBallZ + this.speed * deltaTime;
+    BallPhysics.update(this, deltaTime);
 
-    if (this.z < bowlingBackZ - 10) {
+    if (this.y < 0) {
       this.reset();
       Bat.instance.reset();
     }

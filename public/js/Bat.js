@@ -14,6 +14,9 @@ export class Bat {
   #canSwing;
   #hitZone;
 
+  #MAX_SPEED = 120;
+  #MIN_SPEED = 25;
+
   constructor(key) {
     if (key != Bat.#key) {
       throw new Error("Use Bat.getInstance()!");
@@ -73,21 +76,25 @@ export class Bat {
   }
 
   checkSwing(ball, speed) {
+    console.log("Bat speed: " + speed);
+
     if (!this.#canSwing) {
       console.log("Cannot swing again!");
       return;
     }
     this.#canSwing = false;
-    if (!this.#hit(ball.z)) {
+    if (!this.#hit(ball.z, speed)) {
       return;
     }
-    ball.speed = -ball.speed;
+    //ball.speed = ball.speed;
     ball.hit = true;
+
+    this.changeVelocity(ball, speed);
   }
   #hit(ballZ, speed) {
     let tollerence = 1;
     if (speed < 55) {
-      tollerence = 1.5;
+      tollerence = 1.8;
     } else {
       tollerence = 1.2;
     }
@@ -110,5 +117,27 @@ export class Bat {
   reset() {
     this.#hitZone = Timing.NONE;
     this.#canSwing = true;
+  }
+
+  changeVelocity(ball, speed) {
+    const swingPower = Math.min(speed / this.#MAX_SPEED, 1.0);
+
+    // 2. Calculate the base forward power.
+    // We absorb 35% of the incoming bowler's speed, and add the bat's forward muscle.
+    const incomingPaceAbsorbed = Math.abs(ball.speed) * 0.65;
+    const forwardMuscle = swingPower * 30; // Max forward contribution from swing
+
+    // Total forward velocity magnitude
+    const totalForwardSpeed = incomingPaceAbsorbed + forwardMuscle;
+
+    // 3. THE LIFT FIX: Make vy directly proportional to swing power *and* forward speed!
+    // Instead of a flat hardcoded cap, we base lift on how hard they swung relative to the forward punch.
+    // An aggressive lift multiplier (e.g., 0.6) means vy will scale beautifully.
+    const totalLiftSpeed = swingPower * 24;
+
+    // 4. Assign vectors (Assuming your bowler drives down negative Z, hit must be positive Z)
+    ball.vx = 0;
+    ball.vy = totalLiftSpeed; // Scale height purely on how hard the phone is swung
+    ball.vz = -totalForwardSpeed; // Sells the distance down the ground
   }
 }
