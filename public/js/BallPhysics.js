@@ -44,7 +44,6 @@ export class BallPhysics {
     if (newY <= ball.radius) {
       newY = ball.radius; //reset to ground level
       Ball.instance.bounce(); //bounce the ball
-      console.log("Ball has bounced at: " + newZ);
 
       //apply damping
       newVy = -newVy * this.damping;
