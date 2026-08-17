@@ -61,6 +61,44 @@
       #menuContainer button:active {
         transform: translateY(0);
       }
+
+      #gameOverModal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 200;
+        color: white;
+      }
+
+      #gameOverModal h1 {
+        font-size: 3.5rem;
+        color: #ff4757;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+      }
+
+      #gameOverModal button {
+        padding: 15px 40px;
+        font-size: 1.2rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        background: #2ed573;
+        color: white;
+        font-weight: bold;
+        transition: transform 0.2s;
+      }
+
+      #gameOverModal button:hover {
+        transform: scale(1.05);
+      }
     </style>
   </head>
   <body>
@@ -75,5 +113,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <script type="module" src="/js/main.js"></script>
+
+    <div id="gameOverModal" style="display: none">
+      <h1>BOWLED!</h1>
+      <p>You missed the ball and your stumps were hit.</p>
+      <button id="restartBtn">Play Again</button>
+      <button id="exitBtn">Exit</button>
+    </div>
   </body>
 </html>
