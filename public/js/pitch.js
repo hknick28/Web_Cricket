@@ -67,7 +67,11 @@ function setupCrease() {
   createLine(wideLineWidth, wideLineLen, -battingWideX, wideLineOffset); //Batter-right
 }
 
+export let battersEndStumps;
+
 function setupStumps() {
-  const battersEndStumps = new Stump(battingBackZ).drawStumps();
-  const bowlingEndStumps = new Stump(bowlingBackZ).drawStumps();
+  battersEndStumps = new Stump(battingBackZ);
+  battersEndStumps.drawStumps();
+  const bowlingEndStumps = new Stump(bowlingBackZ);
+  bowlingEndStumps.drawStumps();
 }
