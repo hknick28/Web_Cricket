@@ -10,6 +10,8 @@ import { BallPhysics } from "./BallPhysics.js";
 
 import { battersEndStumps } from "./pitch.js";
 
+import { currentGameState, game_state, setGameState } from "./appState.js";
+
 export class Ball {
   static #internalKey = "single ball";
   static #instance = new Ball(Ball.#internalKey);
@@ -176,8 +178,9 @@ export class Ball {
       this.#bowler.updateBall(this, deltaTime);
 
       if (this.#checkCollisionWithStumps()) {
-        console.log("Ball has hit the stumps!");
         //stop game and display popup message
+        setGameState(game_state.GAME_OVER);
+        console.log("Ball has hit the stumps!");
       }
 
       if (this.z > -bowlingBackZ * 2) {
