@@ -21,7 +21,7 @@ document.getElementById("startBtn")?.addEventListener("click", () => {
 
 // handle calibration button
 document.getElementById("calibrateBtn")?.addEventListener("click", () => {
-  setGameState(game_state.CALIBRATING);
+  //setGameState(game_state.CALIBRATING);
 });
 
 // handle game over button
@@ -62,21 +62,12 @@ socket.on("calibrate", () => {
 });
 
 // start loop here, after everything is loaded
-//Ball.instance; // create ball
-//animate(); // start loop
-
-// Log orientation data
-socket.on("orientation", (data) => {
-  proccessDataSample(data.alpha, data.beta, data.gamma);
-});
 
 // Swing for game
 socket.on("swing", (data) => {
   if (currentGameState === game_state.PLAYING) {
     let acceleration = data.batAcceleration;
     Bat.instance.checkSwing(Ball.instance, acceleration);
-  } else if (currentGameState === game_state.CALIBRATING) {
-    startNewCapture();
   }
 });
 
