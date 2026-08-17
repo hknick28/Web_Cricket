@@ -14,7 +14,7 @@ export class Bat {
   #canSwing;
   #hitZone;
 
-  #MAX_SPEED = 120;
+  #MAX_SPEED = 165;
   #MIN_SPEED = 25;
 
   constructor(key) {
@@ -124,20 +124,22 @@ export class Bat {
 
     // 2. Calculate the base forward power.
     // We absorb 35% of the incoming bowler's speed, and add the bat's forward muscle.
-    const incomingPaceAbsorbed = Math.abs(ball.speed) * 0.65;
-    const forwardMuscle = swingPower * 30; // Max forward contribution from swing
+    const incomingPaceAbsorbed = Math.abs(ball.speed) * 0.35;
+    const forwardMuscle = swingPower * 17; // Max forward contribution from swing
 
     // Total forward velocity magnitude
-    const totalForwardSpeed = incomingPaceAbsorbed + forwardMuscle;
+    const totalForwardSpeed =
+      (incomingPaceAbsorbed + forwardMuscle) * this.#hitZone.timingMultiplier;
 
     // 3. THE LIFT FIX: Make vy directly proportional to swing power *and* forward speed!
     // Instead of a flat hardcoded cap, we base lift on how hard they swung relative to the forward punch.
     // An aggressive lift multiplier (e.g., 0.6) means vy will scale beautifully.
-    const totalLiftSpeed = swingPower * 24;
+
+    const rad = this.#hitZone.launchAngle * (Math.PI / 180);
 
     // 4. Assign vectors (Assuming your bowler drives down negative Z, hit must be positive Z)
     ball.vx = 0;
-    ball.vy = totalLiftSpeed; // Scale height purely on how hard the phone is swung
-    ball.vz = -totalForwardSpeed; // Sells the distance down the ground
+    ball.vy = totalForwardSpeed * Math.sin(rad); // Scale height purely on how hard the phone is swung
+    ball.vz = -totalForwardSpeed * Math.cos(rad); // Sells the distance down the ground
   }
 }

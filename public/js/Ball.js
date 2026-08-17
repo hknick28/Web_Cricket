@@ -12,6 +12,11 @@ import { battersEndStumps } from "./pitch.js";
 
 import { currentGameState, game_state, setGameState } from "./appState.js";
 
+import { Player } from "./Player.js";
+
+import { Fielding } from "./Fielding.js";
+import { RunCalculator } from "./RunCalculator.js";
+
 export class Ball {
   static #internalKey = "single ball";
   static #instance = new Ball(Ball.#internalKey);
@@ -30,6 +35,9 @@ export class Ball {
   #speed;
   #beenHit;
   #ballBoundingBox;
+
+  #hasBounced;
+  #boundaryRadius = 65; // 65m boundaries
 
   constructor(key) {
     if (key !== Ball.#internalKey) {
@@ -168,6 +176,7 @@ export class Ball {
     this.#bowler = FastBowler.instance;
     this.#bowler.setupBowler(this);
     this.speed = this.#bowler.speed;
+    this.#hasBounced = false;
   }
 
   //Move ball each frame
@@ -186,6 +195,7 @@ export class Ball {
       if (this.z > -bowlingBackZ * 2) {
         this.reset();
         Bat.instance.reset();
+        Player.instance.updateBallsFaced();
       }
     }
     this.#mesh.position.set(this.#xPos, this.#yPos, this.#zPos);
@@ -195,9 +205,23 @@ export class Ball {
     //reverse the speed
     BallPhysics.update(this, deltaTime);
 
-    if (this.y < 0) {
+    this.#checkCollisionWithBoundary();
+
+    // find speed of ball after being hit
+    let totalSpeed = Math.sqrt(this.vx ** 2 + this.vy ** 2 + this.vz ** 2);
+
+    //reset if there is no more velocity, and ball is not bouncing
+    if (totalSpeed < 1) {
+      console.log("Ball has stopped moving at: " + this.z);
+      const retrievalTime = Fielding.estimateRetrievalTime(this.x, this.z);
+      const runs = RunCalculator.runsFor(retrievalTime);
+      if (runs > 0) {
+        Player.instance.addRuns(runs);
+        console.log(runs + " run(s) taken.");
+      }
       this.reset();
       Bat.instance.reset();
+      Player.instance.updateBallsFaced();
     }
   }
 
@@ -207,6 +231,8 @@ export class Ball {
 
   // Check for collision with stumps, only if ball has not been hit by the bat
   #checkCollisionWithStumps() {
+    if (this.z < 0) return;
+
     this.#ballBoundingBox = new THREE.Box3().setFromObject(this.#mesh);
     const stumpsBoundingBox = new THREE.Box3().setFromObject(
       battersEndStumps.group,
@@ -216,5 +242,43 @@ export class Ball {
       return false;
     }
     return true; // ball has hit the stumps
+  }
+
+  #checkCollisionWithBoundary() {
+    let ballDist = Math.abs(this.#zPos); //make sure position is positive
+
+    if (ballDist < this.#boundaryRadius) {
+      return;
+    }
+
+    //assumed that ball has crossed the boundary, so it is a 4, or a 6
+    if (this.#hasBounced) {
+      console.log("ball bounced, four! Total score: " + Player.instance.score);
+
+      Player.instance.addFour();
+      console.log(
+        "Balls Z was: " +
+          ballDist +
+          " and boundary radius was: " +
+          this.#boundaryRadius,
+      );
+    } else {
+      //ball resets when bounced, so we can assume that if it has crossed the boundary, it is a 6
+      Player.instance.addSix(); // add 6 runs to score
+      console.log("SIX! Total score: " + Player.instance.score);
+      console.log(
+        "Balls Z was: " +
+          ballDist +
+          " and boundary radius was: " +
+          this.#boundaryRadius,
+      );
+    }
+    this.reset(); // reset ball position
+    Bat.instance.reset();
+    Player.instance.updateBallsFaced();
+  }
+
+  bounce() {
+    this.#hasBounced = true;
   }
 }

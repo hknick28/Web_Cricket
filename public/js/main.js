@@ -4,6 +4,7 @@ import { Ball } from "./Ball.js"; // defines Ball class
 import { Bat } from "./Bat.js";
 import { currentGameState, game_state, setGameState } from "./appState.js";
 import "./scene.js";
+import { Player } from "./Player.js";
 //import { startNewCapture, proccessDataSample } from "./capture.js";
 
 //socket stuff
@@ -20,14 +21,13 @@ document.getElementById("startBtn")?.addEventListener("click", () => {
 
 // handle calibration button
 document.getElementById("calibrateBtn")?.addEventListener("click", () => {
-  setGameState(game_state.CALIBRATING);
+  //setGameState(game_state.CALIBRATING);
 });
 
 // handle game over button
 document.getElementById("restartBtn")?.addEventListener("click", () => {
   console.log("Game restarted");
-  Ball.instance.reset();
-  Bat.instance.reset();
+  resetGame();
   setGameState(game_state.PLAYING);
   document.getElementById("gameOverModal").style.display = "none";
 });
@@ -35,6 +35,7 @@ document.getElementById("restartBtn")?.addEventListener("click", () => {
 // handle exit button
 document.getElementById("exitBtn")?.addEventListener("click", () => {
   console.log("Game exited");
+  resetGame();
   setGameState(game_state.MENU);
   document.getElementById("gameOverModal").style.display = "none";
   document.getElementById("menuContainer").style.display = "flex";
@@ -61,20 +62,17 @@ socket.on("calibrate", () => {
 });
 
 // start loop here, after everything is loaded
-//Ball.instance; // create ball
-//animate(); // start loop
-
-// Log orientation data
-socket.on("orientation", (data) => {
-  proccessDataSample(data.alpha, data.beta, data.gamma);
-});
 
 // Swing for game
 socket.on("swing", (data) => {
   if (currentGameState === game_state.PLAYING) {
     let acceleration = data.batAcceleration;
     Bat.instance.checkSwing(Ball.instance, acceleration);
-  } else if (currentGameState === game_state.CALIBRATING) {
-    startNewCapture();
   }
 });
+
+function resetGame() {
+  Ball.instance.reset();
+  Bat.instance.reset();
+  Player.instance.reset();
+}
