@@ -36,6 +36,9 @@ export class Player {
   addFour() {
     this.#score += 4;
   }
+  addRuns(runs) {
+    this.#score += runs;
+  }
 
   updateBallsFaced() {
     this.#ballsFaced += 1;
