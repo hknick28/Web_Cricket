@@ -60,32 +60,38 @@ export const Line = Object.freeze({
   },
 });
 
-let windowLength = 1.8; //meters
-let zPerfectLengthEnd = battingPopping; //back
+let windowLength = 1.8; // meters — overall contact window
+let perfectWindow = 0.5; // meters — the tight sweet-spot band inside it
+let zPerfectLengthEnd = battingPopping;
 
 export const Timing = Object.freeze({
-  EARLY: {
-    label: "early",
-    checkBounds: (z, tollerence = 1) => {
-      let zPerfectLengthStart = zPerfectLengthEnd - windowLength * tollerence;
-      return (
-        z <= zPerfectLengthEnd &&
-        z >= zPerfectLengthEnd - windowLength * tollerence
-      );
-    },
-  },
-
   PERFECT: {
     label: "perfect",
     checkBounds: (z, tollerence = 1) => {
-      let zPerfectLengthStart = zPerfectLengthEnd - windowLength * tollerence;
-      return z <= zPerfectLengthEnd && z >= zPerfectLengthStart;
+      const perfectStart = zPerfectLengthEnd - perfectWindow * tollerence;
+      return z <= zPerfectLengthEnd && z >= perfectStart;
     },
+    timingMultiplier: 1.0,
+    launchAngle: 45, // degrees
+  },
+
+  EARLY: {
+    label: "early",
+    checkBounds: (z, tollerence = 1) => {
+      const perfectStart = zPerfectLengthEnd - perfectWindow * tollerence;
+      const earlyStart = zPerfectLengthEnd - windowLength * tollerence;
+      // only matches OUTSIDE the perfect band, but still inside the full window
+      return z < perfectStart && z >= earlyStart;
+    },
+    timingMultiplier: 0.8,
+    launchAngle: 32, // degrees
   },
 
   NONE: {
     label: "none",
     checkBounds: (z, tollerence = 1) => false,
+    timingMultiplier: 0.0,
+    launchAngle: 0,
   },
 });
 
