@@ -5,7 +5,7 @@ import { Stump } from "./stump.js";
 
 // Scale: 1 unit = 1 meter
 let width = 3.05;
-let height = 20;
+let height = 20.12;
 //let zOffset = -10;
 
 let rotate = -Math.PI / 2;
