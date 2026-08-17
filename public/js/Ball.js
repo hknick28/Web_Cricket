@@ -33,6 +33,9 @@ export class Ball {
   #beenHit;
   #ballBoundingBox;
 
+  #hasBounced;
+  #boundaryRadius = 70;
+
   constructor(key) {
     if (key !== Ball.#internalKey) {
       throw new Error("Use Ball.getInstance()!");
@@ -170,6 +173,7 @@ export class Ball {
     this.#bowler = FastBowler.instance;
     this.#bowler.setupBowler(this);
     this.speed = this.#bowler.speed;
+    this.#hasBounced = false;
   }
 
   //Move ball each frame
@@ -198,6 +202,8 @@ export class Ball {
     //reverse the speed
     BallPhysics.update(this, deltaTime);
 
+    this.#checkCollisionWithBoundary();
+
     if (this.y < 0) {
       this.reset();
       Bat.instance.reset();
@@ -222,5 +228,27 @@ export class Ball {
       return false;
     }
     return true; // ball has hit the stumps
+  }
+
+  #checkCollisionWithBoundary() {
+    let ballDist = Math.abs(this.#zPos); //make sure position is positive
+    if (ballDist < this.#boundaryRadius) {
+      console.log("no six!");
+      return;
+    } //not crossed boundary
+
+    //ball resets when bounced, so we can assume that if it has crossed the boundary, it is a 6
+    Player.instance.addSix(); // add 6 runs to score
+    console.log("SIX! Total score: " + Player.instance.score);
+    console.log(
+      "Balls Z was: " +
+        ballDist +
+        " and boundary radius was: " +
+        this.#boundaryRadius,
+    );
+
+    this.reset(); // reset ball position
+    Bat.instance.reset();
+    Player.instance.updateBallsFaced();
   }
 }
