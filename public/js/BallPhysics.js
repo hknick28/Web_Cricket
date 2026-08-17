@@ -3,9 +3,9 @@ import { Ball } from "./Ball.js";
 export class BallPhysics {
   static gravity = 9.81; // m/s^2
   static air_desity = 1.225; // kg/m^3
-  static drag_coeff = 1.8; //typical for a ball of any size
-  static damping = 0.5; //damping factor for energy loss when bouncing
-  static friction = 1.4;
+  static drag_coeff = 0.33; //typical for a ball of any size
+  static damping = 0.4; //damping factor for energy loss when bouncing
+  static friction = 0.8; //energy loss when bouncing on the ground
 
   static update(ball, dt) {
     const vx = ball.vx;
@@ -44,6 +44,7 @@ export class BallPhysics {
     if (newY <= ball.radius) {
       newY = ball.radius; //reset to ground level
       Ball.instance.bounce(); //bounce the ball
+      console.log("Ball has bounced at: " + newZ);
 
       //apply damping
       newVy = -newVy * this.damping;
