@@ -204,7 +204,12 @@ export class Ball {
 
     this.#checkCollisionWithBoundary();
 
-    if (this.y < 0) {
+    // find speed of ball after being hit
+    let totalSpeed = Math.sqrt(this.vx ** 2 + this.vy ** 2 + this.vz ** 2);
+    console.log("Ball speed after being hit: " + totalSpeed);
+
+    //reset if there is no more velocity, and ball is not bouncing
+    if (totalSpeed < 1) {
       this.reset();
       Bat.instance.reset();
       Player.instance.updateBallsFaced();
@@ -232,23 +237,34 @@ export class Ball {
 
   #checkCollisionWithBoundary() {
     let ballDist = Math.abs(this.#zPos); //make sure position is positive
+
     if (ballDist < this.#boundaryRadius) {
-      console.log("no six!");
+      console.log("no boundary!");
       return;
-    } //not crossed boundary
+    }
 
-    //ball resets when bounced, so we can assume that if it has crossed the boundary, it is a 6
-    Player.instance.addSix(); // add 6 runs to score
-    console.log("SIX! Total score: " + Player.instance.score);
-    console.log(
-      "Balls Z was: " +
-        ballDist +
-        " and boundary radius was: " +
-        this.#boundaryRadius,
-    );
+    //assumed that ball has crossed the boundary, so it is a 4, or a 6
+    if (this.#hasBounced) {
+      console.log("ball bounced, four! Total score: " + Player.instance.score);
 
+      Player.instance.addFour();
+    } else {
+      //ball resets when bounced, so we can assume that if it has crossed the boundary, it is a 6
+      Player.instance.addSix(); // add 6 runs to score
+      console.log("SIX! Total score: " + Player.instance.score);
+      console.log(
+        "Balls Z was: " +
+          ballDist +
+          " and boundary radius was: " +
+          this.#boundaryRadius,
+      );
+    }
     this.reset(); // reset ball position
     Bat.instance.reset();
     Player.instance.updateBallsFaced();
+  }
+
+  bounce() {
+    this.#hasBounced = true;
   }
 }
