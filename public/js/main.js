@@ -4,7 +4,7 @@ import { Ball } from "./Ball.js"; // defines Ball class
 import { Bat } from "./Bat.js";
 import { currentGameState, game_state, setGameState } from "./appState.js";
 import "./scene.js";
-import { startNewCapture, proccessDataSample } from "./capture.js";
+//import { startNewCapture, proccessDataSample } from "./capture.js";
 
 //socket stuff
 const socket = io();
@@ -12,8 +12,9 @@ const socket = io();
 // Handle menu buttons
 document.getElementById("startBtn")?.addEventListener("click", () => {
   setGameState(game_state.PLAYING);
+  console.log("Game state set to PLAYING");
   document.getElementById("menuContainer").style.display = "none";
-  Ball.instance; // create ball
+  Ball.instance.draw(); // create ball
   animate();
 });
 
@@ -43,8 +44,8 @@ socket.on("calibrate", () => {
 });
 
 // start loop here, after everything is loaded
-Ball.instance; // create ball
-animate(); // start loop
+//Ball.instance; // create ball
+//animate(); // start loop
 
 // Log orientation data
 socket.on("orientation", (data) => {

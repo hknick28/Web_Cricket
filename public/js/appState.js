@@ -6,7 +6,7 @@ export const game_state = {
   CALIBRATING: "Calibrating",
 };
 
-let currentGameState = game_state.MENU;
+export let currentGameState = game_state.MENU;
 
 export function setGameState(newState) {
   currentGameState = newState;
