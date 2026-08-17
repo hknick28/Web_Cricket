@@ -23,6 +23,15 @@ document.getElementById("calibrateBtn")?.addEventListener("click", () => {
   setGameState(game_state.CALIBRATING);
 });
 
+// handle game over button
+document.getElementById("restartBtn")?.addEventListener("click", () => {
+  console.log("Game restarted");
+  Ball.instance.reset();
+  Bat.instance.reset();
+  setGameState(game_state.PLAYING);
+  document.getElementById("gameOverModal").style.display = "none";
+});
+
 export const phoneRotationData = {
   beta: 0,
   gamma: 0,
