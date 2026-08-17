@@ -2,8 +2,11 @@ import "./scene.js";
 import { scene } from "./scene.js";
 export class Stump {
   zPos; // pos on pitch
+  #bounds; // bounding box for collision detection
+  #group; // group of 3 stumps
   constructor(z) {
     this.zPos = z;
+    this.#group = new THREE.Group();
   }
 
   // height of the stump
@@ -26,6 +29,9 @@ export class Stump {
     this.draw(Stump.xOffset);
     this.draw(0);
     this.draw(-Stump.xOffset);
+
+    this.#bounds = new THREE.Box3().setFromObject(this.#group);
+    scene.add(this.#group);
   }
 
   // helper method
@@ -41,6 +47,10 @@ export class Stump {
 
     stump.position.set(x, Stump.height / 2, this.zPos);
 
-    scene.add(stump);
+    this.#group.add(stump);
+  }
+
+  get bounds() {
+    return this.#bounds;
   }
 }

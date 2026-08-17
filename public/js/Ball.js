@@ -8,6 +8,8 @@ import { scene } from "./scene.js";
 import { Bat } from "./Bat.js";
 import { BallPhysics } from "./BallPhysics.js";
 
+import { battersEndStumps } from "./pitch.js";
+
 export class Ball {
   static #internalKey = "single ball";
   static #instance = new Ball(Ball.#internalKey);
@@ -25,6 +27,7 @@ export class Ball {
   #bowler;
   #speed;
   #beenHit;
+  #ballBoundingBox;
 
   constructor(key) {
     if (key !== Ball.#internalKey) {
@@ -171,6 +174,12 @@ export class Ball {
       this.#hitUpdate(deltaTime);
     } else {
       this.#bowler.updateBall(this, deltaTime);
+
+      if (this.#checkCollisionWithStumps()) {
+        console.log("Ball has hit the stumps!");
+        //stop game and display popup message
+      }
+
       if (this.z > -bowlingBackZ * 2) {
         this.reset();
         Bat.instance.reset();
@@ -191,5 +200,16 @@ export class Ball {
 
   static get instance() {
     return Ball.#instance;
+  }
+
+  // Check for collision with stumps, only if ball has not been hit by the bat
+  #checkCollisionWithStumps() {
+    this.#ballBoundingBox = new THREE.Box3().setFromObject(this.#mesh);
+    const stumpsBoundingBox = new THREE.Box3().setFromObject(battersEndStumps);
+
+    if (!this.#ballBoundingBox.intersectsBox(stumpsBoundingBox)) {
+      return false;
+    }
+    return true; // ball has hit the stumps
   }
 }
