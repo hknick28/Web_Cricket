@@ -1,6 +1,3 @@
-const fs = require("fs");
-const path = require("path");
-
 export function saveCalibrationToFile(profileData) {
   const dataString = JSON.stringify(profileData, null, 2);
   const blob = new Blob([dataString], { type: "application/json" });
@@ -11,4 +8,5 @@ export function saveCalibrationToFile(profileData) {
   a.download = "calibration_profiles.json";
   a.click();
   URL.revokeObjectURL(url);
+  console.log("🚀 Calibration complete! Profile downloaded.");
 }
