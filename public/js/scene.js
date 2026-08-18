@@ -56,36 +56,40 @@ export function animate() {
 function createSky(scene) {
   const skyGroup = new THREE.Group();
 
-  //create lare plane behind pitch for the sky
-  const skyGeometry = new THREE.PlaneGeometry(300, 150);
+  // Create a large dome surrounding the entire pitch area (radius 200m)
+  // SphereGeometry(radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength)
+  const skyGeometry = new THREE.SphereGeometry(
+    200,
+    32,
+    16,
+    0,
+    Math.PI * 2,
+    0,
+    Math.PI * 0.65,
+  );
 
-  //using vertex colors for gradient effect
   const skyMaterial = new THREE.MeshBasicMaterial({
     vertexColors: true,
-    side: THREE.DoubleSide,
+    side: THREE.BackSide, // Render inside of the sphere
   });
 
   const skyMesh = new THREE.Mesh(skyGeometry, skyMaterial);
 
-  // Set vertex colors for gradient effect
-  const topColor = new THREE.Color(0x2b4c7e); //dusk blue
-  const bottomColor = new THREE.Color(0xef8c68); //sunset orange
+  const topColor = new THREE.Color(0x2b4c7e); // Dusk blue
+  const bottomColor = new THREE.Color(0xef8c68); // Sunset orange
 
-  //apply the colors to the 4 corners of the plane
-  const colors = [
-    topColor.r,
-    topColor.g,
-    topColor.b, //top left
-    topColor.r,
-    topColor.g,
-    topColor.b, //top right
-    bottomColor.r,
-    bottomColor.g,
-    bottomColor.b, //bottom left
-    bottomColor.r,
-    bottomColor.g,
-    bottomColor.b, //bottom right
-  ];
+  const positionAttribute = skyGeometry.getAttribute("position");
+  const colors = [];
+
+  // Gradient based on vertex height (Y position)
+  for (let i = 0; i < positionAttribute.count; i++) {
+    const y = positionAttribute.getY(i);
+    // Normalize Y height from 0 (horizon) to 200 (zenith)
+    const factor = Math.min(Math.max(y / 150, 0), 1);
+
+    const vertexColor = bottomColor.clone().lerp(topColor, factor);
+    colors.push(vertexColor.r, vertexColor.g, vertexColor.b);
+  }
 
   skyGeometry.setAttribute(
     "color",
@@ -94,29 +98,42 @@ function createSky(scene) {
 
   skyGroup.add(skyMesh);
 
-  // add clouds
+  // Scattered clouds around the dome
   const cloudMaterial = new THREE.MeshBasicMaterial({
     color: 0xffffff,
     transparent: true,
     opacity: 0.35,
+    side: THREE.DoubleSide,
   });
 
-  //helper to add clouds
-  function addCloud(wd, ht, x, y) {
-    const cloudGeometry = new THREE.PlaneGeometry(wd, ht);
-    const cloud = new THREE.Mesh(cloudGeometry, cloudMaterial);
-    cloud.position.set(x, y, 1); //place little infront of sky plane
+  function addCloudRing(radius, height, angle, wd, ht) {
+    const cloudGeo = new THREE.PlaneGeometry(wd, ht);
+    const cloud = new THREE.Mesh(cloudGeo, cloudMaterial);
+
+    const x = radius * Math.cos(angle);
+    const z = radius * Math.sin(angle);
+
+    cloud.position.set(x, height, z);
+    cloud.lookAt(0, height, 0); // Face center of ground
     skyGroup.add(cloud);
   }
 
-  //add clouds
-  addCloud(40, 8, -60, 25);
-  addCloud(55, 10, 10, 35);
-  addCloud(35, 7, 70, 20);
-  addCloud(25, 6, -20, 15);
+  // Scatter clouds in a 360-degree circle around the stadium
+  const cloudCount = 12;
+  for (let i = 0; i < cloudCount; i++) {
+    const angle = (i / cloudCount) * Math.PI * 2;
+    const distance = 140 + Math.random() * 30;
+    const cloudY = 30 + Math.random() * 20;
+    addCloudRing(
+      distance,
+      cloudY,
+      angle,
+      40 + Math.random() * 20,
+      8 + Math.random() * 4,
+    );
+  }
 
-  //move whole skygroup behind the pitch
-  skyGroup.position.set(0, 40, -120);
+  skyGroup.position.set(0, -10, 0);
 
   scene.add(skyGroup);
 }
