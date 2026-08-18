@@ -193,13 +193,18 @@ export class Ball {
       if (this.#checkCollisionWithStumps()) {
         //stop game and display popup message
         setGameState(game_state.GAME_OVER);
+
+        Player.instance.updateBallsFaced();
+
         UIManager.instance.showGameOver(
           Player.instance.runs,
           Player.instance.balls,
         );
       }
 
-      if (this.z > -bowlingBackZ * 2) {
+      if (this.z > -bowlingBackZ * 2 && !this.#outcomeHandled) {
+        this.#outcomeHandled = true;
+
         this.#handleBallOutcome(0); // ball has gone past the stumps, so it is a dot ball
       }
     }
