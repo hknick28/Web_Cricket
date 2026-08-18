@@ -23,6 +23,7 @@ camera.lookAt(0, 0, 0);
 
 initPitch();
 createSky(scene);
+createStands(scene);
 
 Ball.instance.draw();
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
@@ -136,4 +137,74 @@ function createSky(scene) {
   skyGroup.position.set(0, -10, 0);
 
   scene.add(skyGroup);
+}
+
+function createStands(scene) {
+  const standGroup = new THREE.Group();
+
+  const stadiumRadius = 55;
+  const segments = 32;
+
+  // Render DoubleSide so we can see the inside of the stadium rings
+  const concreteMat = new THREE.MeshBasicMaterial({
+    color: 0x718096,
+    side: THREE.DoubleSide,
+  });
+  const blueSeatsMat = new THREE.MeshBasicMaterial({
+    color: 0x1d3557,
+    side: THREE.DoubleSide,
+  });
+  const greenSeatsMat = new THREE.MeshBasicMaterial({
+    color: 0x2a9d8f,
+    side: THREE.DoubleSide,
+  });
+  const roofMat = new THREE.MeshBasicMaterial({
+    color: 0xe2e8f0,
+    side: THREE.DoubleSide,
+  });
+  const screenMat = new THREE.MeshBasicMaterial({
+    color: 0xffffff,
+    side: THREE.DoubleSide,
+  });
+
+  // Helper to build solid curved rings
+  function createRingTier(material, innerR, outerR, height, yPos) {
+    const geo = new THREE.CylinderGeometry(
+      outerR, // top radius
+      innerR, // bottom radius (slightly smaller creates a stepped/sloped seating angle)
+      height,
+      segments,
+      1,
+      true, // open top/bottom
+    );
+
+    const mesh = new THREE.Mesh(geo, material);
+    mesh.position.y = yPos;
+    standGroup.add(mesh);
+    return mesh;
+  }
+
+  // 1. Boundary Wall / Concrete Base (lowered right at ground level)
+  createRingTier(concreteMat, stadiumRadius, stadiumRadius + 1, 2, 1);
+
+  // 2. Lower Seating Tier (Blue) - sloping upward from ground level
+  createRingTier(blueSeatsMat, stadiumRadius + 1, stadiumRadius + 6, 4, 3);
+
+  // 3. Middle Concrete Walkway
+  createRingTier(concreteMat, stadiumRadius + 6, stadiumRadius + 7, 2, 5);
+
+  // 4. Upper Seating Tier (Green)
+  createRingTier(greenSeatsMat, stadiumRadius + 7, stadiumRadius + 14, 6, 8);
+
+  // 5. Roof Overhang
+  createRingTier(roofMat, stadiumRadius + 14, stadiumRadius + 10, 1.5, 11.5);
+
+  // 6. Sight Screen / Scoreboard behind bowler
+  const sightScreenGeo = new THREE.PlaneGeometry(10, 5);
+  const sightScreen = new THREE.Mesh(sightScreenGeo, screenMat);
+  // Positioned right at boundary wall level behind bowler
+  sightScreen.position.set(0, 2.5, -stadiumRadius + 1);
+  standGroup.add(sightScreen);
+
+  scene.add(standGroup);
 }
