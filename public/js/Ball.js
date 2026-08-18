@@ -268,6 +268,9 @@ export class Ball {
   }
 
   #checkCollisionWithBoundary() {
+    if (this.#outcomeHandled) {
+      return true;
+    }
     let ballDist = Math.abs(this.#zPos); //make sure position is positive
 
     if (ballDist < this.#boundaryRadius) {
@@ -306,6 +309,7 @@ export class Ball {
   }
 
   async #handleBallOutcome(runs) {
+    this.#outcomeHandled = true; //the outcome has been handled
     Player.instance.updateBallsFaced();
 
     UIManager.instance.updateHUD(Player.instance.runs, Player.instance.balls);
