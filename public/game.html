@@ -12,12 +12,14 @@
       body {
         margin: 0;
         font-family: Arial, sans-serif;
+        overflow: hidden;
       }
 
       canvas {
         display: block;
       }
 
+      /* Main Menu Overlay */
       #menuContainer {
         position: fixed;
         top: 0;
@@ -58,10 +60,45 @@
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
       }
 
-      #menuContainer button:active {
-        transform: translateY(0);
+      /* Gameplay HUD */
+      #hudContainer {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        display: flex;
+        gap: 20px;
+        font-family: "Arial Black", sans-serif;
+        color: #fff;
+        font-size: 24px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        pointer-events: none;
+        z-index: 10;
       }
 
+      /* Shot Banner Overlay */
+      #overlay {
+        position: absolute;
+        top: 35%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-family: "Arial Black", sans-serif;
+        font-size: 72px;
+        color: #ffd700;
+        text-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
+        transition:
+          opacity 0.4s ease,
+          transform 0.4s ease;
+        pointer-events: none;
+        z-index: 20;
+      }
+
+      /* Utility class for hiding overlays */
+      .hidden {
+        display: none !important;
+        opacity: 0;
+      }
+
+      /* Game Over Modal */
       #gameOverModal {
         position: fixed;
         top: 0;
@@ -72,7 +109,7 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        gap: 20px;
+        gap: 15px;
         background: rgba(0, 0, 0, 0.85);
         z-index: 200;
         color: white;
@@ -82,6 +119,10 @@
         font-size: 3.5rem;
         color: #ff4757;
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+      }
+
+      #gameOverModal p {
+        font-size: 1.2rem;
       }
 
       #gameOverModal button {
@@ -94,6 +135,7 @@
         color: white;
         font-weight: bold;
         transition: transform 0.2s;
+        margin-top: 10px;
       }
 
       #gameOverModal button:hover {
@@ -102,6 +144,7 @@
     </style>
   </head>
   <body>
+    <!-- Main Menu -->
     <div id="menuContainer">
       <h1>🏏 Web Cricket</h1>
       <button id="startBtn">Start Game</button>
@@ -109,16 +152,34 @@
       <button id="quitBtn">Quit</button>
     </div>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Gameplay HUD -->
+    <div id="hudContainer">
+      <div class="hud-item">
+        <span class="hud-label">RUNS:</span> <span id="hud-runs">0</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">BALLS:</span> <span id="hud-balls">0</span>
+      </div>
+    </div>
 
-    <script type="module" src="/js/main.js"></script>
+    <!-- Shot Result Overlay -->
+    <div id="overlay" class="hidden">
+      <h1 id="overlay-text">4</h1>
+    </div>
 
-    <div id="gameOverModal" style="display: none">
+    <!-- Game Over Modal -->
+    <div id="gameOverModal" class="hidden">
       <h1>BOWLED!</h1>
       <p>You missed the ball and your stumps were hit.</p>
+      <p>Score: <span id="finalScore">0</span></p>
+      <p>Balls Faced: <span id="ballsFaced">0</span></p>
       <button id="restartBtn">Play Again</button>
       <button id="exitBtn">Exit</button>
     </div>
+
+    <!-- Scripts -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script type="module" src="/js/main.js"></script>
   </body>
 </html>
