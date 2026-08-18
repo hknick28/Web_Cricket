@@ -20,6 +20,7 @@ import { UIManager } from "./UIManager.js";
 
 export class Ball {
   static #internalKey = "single ball";
+  static #preBallDelaySeconds = 1.5; // seconds to wait before ball is released
   static #instance = new Ball(Ball.#internalKey);
 
   #mesh;
@@ -41,6 +42,8 @@ export class Ball {
   #boundaryRadius = 65; // 65m boundaries
 
   #outcomeHandled;
+
+  #preBallDelay; // seconds to wait before ball is released
 
   constructor(key) {
     if (key !== Ball.#internalKey) {
@@ -181,6 +184,8 @@ export class Ball {
     this.speed = this.#bowler.speed;
     this.#hasBounced = false;
     this.#outcomeHandled = false;
+
+    this.#preBallDelay = Ball.#preBallDelaySeconds;
   }
 
   //Move ball each frame
@@ -188,6 +193,12 @@ export class Ball {
     if (this.#beenHit) {
       this.#hitUpdate(deltaTime);
     } else {
+      if (this.#preBallDelay > 0) {
+        this.#preBallDelay -= deltaTime;
+        this.#mesh.position.set(this.#xPos, this.#yPos, this.#zPos);
+        return; // ball just sits at release point, not bowled yet
+      }
+
       this.#bowler.updateBall(this, deltaTime);
 
       if (this.#checkCollisionWithStumps()) {
