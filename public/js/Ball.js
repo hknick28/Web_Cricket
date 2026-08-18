@@ -40,6 +40,8 @@ export class Ball {
   #hasBounced;
   #boundaryRadius = 65; // 65m boundaries
 
+  #outcomeHandled;
+
   constructor(key) {
     if (key !== Ball.#internalKey) {
       throw new Error("Use Ball.getInstance()!");
@@ -178,6 +180,7 @@ export class Ball {
     this.#bowler.setupBowler(this);
     this.speed = this.#bowler.speed;
     this.#hasBounced = false;
+    this.#outcomeHandled = false;
   }
 
   //Move ball each frame
@@ -197,9 +200,7 @@ export class Ball {
       }
 
       if (this.z > -bowlingBackZ * 2) {
-        this.reset();
-        Bat.instance.reset();
-        Player.instance.updateBallsFaced();
+        this.#handleBallOutcome(0); // ball has gone past the stumps, so it is a dot ball
       }
     }
     this.#mesh.position.set(this.#xPos, this.#yPos, this.#zPos);
@@ -217,8 +218,9 @@ export class Ball {
     let totalSpeed = Math.sqrt(this.vx ** 2 + this.vy ** 2 + this.vz ** 2);
 
     //reset if there is no more velocity, and ball is not bouncing
-    if (totalSpeed < 1) {
+    if (totalSpeed < 1 && !this.#outcomeHandled) {
       console.log("Ball has stopped moving at: " + this.z);
+      this.#outcomeHandled = true;
       const retrievalTime = Fielding.estimateRetrievalTime(this.x, this.z);
       const runs = RunCalculator.runsFor(retrievalTime);
       if (runs > 0) {
@@ -226,7 +228,7 @@ export class Ball {
         console.log(runs + " run(s) taken.");
       }
 
-      this.#habdleBallOutcome(runs);
+      this.#handleBallOutcome(runs);
     }
   }
 
@@ -279,7 +281,7 @@ export class Ball {
       );
     }
 
-    this.#habdleBallOutcome(this.#hasBounced ? 4 : 6);
+    this.#handleBallOutcome(this.#hasBounced ? 4 : 6);
     return true; // ball has crossed the boundary
   }
 
@@ -287,7 +289,7 @@ export class Ball {
     this.#hasBounced = true;
   }
 
-  async #habdleBallOutcome(runs) {
+  async #handleBallOutcome(runs) {
     Player.instance.updateBallsFaced();
 
     UIManager.instance.updateHUD(Player.instance.runs, Player.instance.balls);
