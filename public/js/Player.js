@@ -22,11 +22,11 @@ export class Player {
   }
 
   //getters
-  get score() {
+  get runs() {
     return this.#score;
   }
 
-  get ballsFaced() {
+  get balls() {
     return this.#ballsFaced;
   }
 

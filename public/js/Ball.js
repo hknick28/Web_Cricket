@@ -16,6 +16,7 @@ import { Player } from "./Player.js";
 
 import { Fielding } from "./Fielding.js";
 import { RunCalculator } from "./RunCalculator.js";
+import { UIManager } from "./UIManager.js";
 
 export class Ball {
   static #internalKey = "single ball";
@@ -189,7 +190,10 @@ export class Ball {
       if (this.#checkCollisionWithStumps()) {
         //stop game and display popup message
         setGameState(game_state.GAME_OVER);
-        console.log("Ball has hit the stumps!");
+        UIManager.instance.showGameOver(
+          Player.instance.runs,
+          Player.instance.balls,
+        );
       }
 
       if (this.z > -bowlingBackZ * 2) {
@@ -205,7 +209,9 @@ export class Ball {
     //reverse the speed
     BallPhysics.update(this, deltaTime);
 
-    this.#checkCollisionWithBoundary();
+    if (this.#checkCollisionWithBoundary()) {
+      return;
+    }
 
     // find speed of ball after being hit
     let totalSpeed = Math.sqrt(this.vx ** 2 + this.vy ** 2 + this.vz ** 2);
@@ -219,9 +225,8 @@ export class Ball {
         Player.instance.addRuns(runs);
         console.log(runs + " run(s) taken.");
       }
-      this.reset();
-      Bat.instance.reset();
-      Player.instance.updateBallsFaced();
+
+      this.#habdleBallOutcome(runs);
     }
   }
 
@@ -248,7 +253,7 @@ export class Ball {
     let ballDist = Math.abs(this.#zPos); //make sure position is positive
 
     if (ballDist < this.#boundaryRadius) {
-      return;
+      return false; // ball is still inside the boundary
     }
 
     //assumed that ball has crossed the boundary, so it is a 4, or a 6
@@ -273,12 +278,22 @@ export class Ball {
           this.#boundaryRadius,
       );
     }
-    this.reset(); // reset ball position
-    Bat.instance.reset();
-    Player.instance.updateBallsFaced();
+
+    this.#habdleBallOutcome(this.#hasBounced ? 4 : 6);
+    return true; // ball has crossed the boundary
   }
 
   bounce() {
     this.#hasBounced = true;
+  }
+
+  async #habdleBallOutcome(runs) {
+    Player.instance.updateBallsFaced();
+
+    UIManager.instance.updateHUD(Player.instance.runs, Player.instance.balls);
+    await UIManager.instance.showShotOverlay(runs);
+
+    this.reset();
+    Bat.instance.reset();
   }
 }

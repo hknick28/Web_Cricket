@@ -13,11 +13,11 @@ export let currentGameState = game_state.MENU;
 export function setGameState(newState) {
   currentGameState = newState;
 
-  const gameOverContainer = document.getElementById("gameOverModal");
+  /*const gameOverContainer = document.getElementById("gameOverModal");
   if (gameOverContainer) {
     gameOverContainer.style.display =
       newState === game_state.GAME_OVER ? "flex" : "none";
-  }
+  }*/
 }
 
 export function getCurrentGameState() {
