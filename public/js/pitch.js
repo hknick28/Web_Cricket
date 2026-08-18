@@ -33,11 +33,15 @@ export function initPitch() {
   const pitch = new THREE.PlaneGeometry(width, height);
   const surface = new THREE.MeshLambertMaterial({ color: 0xc8a96e });
   const mesh = new THREE.Mesh(pitch, surface);
-  scene.add(mesh);
+
   mesh.rotation.x = rotate;
+  mesh.position.y = 0.01; // Slightly above ground to avoid z-fighting
+
+  scene.add(mesh);
 
   setupCrease();
   setupStumps();
+  setupOutfield();
 }
 
 function createLine(lineWidth, depth, z, x) {
@@ -74,4 +78,19 @@ function setupStumps() {
   battersEndStumps.drawStumps();
   const bowlingEndStumps = new Stump(bowlingBackZ);
   bowlingEndStumps.drawStumps();
+}
+
+function setupOutfield() {
+  const groundGeometry = new THREE.PlaneGeometry(100, 100);
+  const groundMaterial = new THREE.MeshStandardMaterial({
+    color: 0x228b22,
+    roughness: 0.8,
+    metalness: 0.1,
+  });
+
+  const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
+
+  groundMesh.rotation.x = -Math.PI / 2; //lay flat horizontally
+  groundMesh.receiveShadow = true;
+  scene.add(groundMesh);
 }
