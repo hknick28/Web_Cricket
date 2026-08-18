@@ -16,9 +16,11 @@ import { Player } from "./Player.js";
 
 import { Fielding } from "./Fielding.js";
 import { RunCalculator } from "./RunCalculator.js";
+import { UIManager } from "./UIManager.js";
 
 export class Ball {
   static #internalKey = "single ball";
+  static #preBallDelaySeconds = 1.5; // seconds to wait before ball is released
   static #instance = new Ball(Ball.#internalKey);
 
   #mesh;
@@ -38,6 +40,10 @@ export class Ball {
 
   #hasBounced;
   #boundaryRadius = 65; // 65m boundaries
+
+  #outcomeHandled;
+
+  #preBallDelay; // seconds to wait before ball is released
 
   constructor(key) {
     if (key !== Ball.#internalKey) {
@@ -177,6 +183,9 @@ export class Ball {
     this.#bowler.setupBowler(this);
     this.speed = this.#bowler.speed;
     this.#hasBounced = false;
+    this.#outcomeHandled = false;
+
+    this.#preBallDelay = Ball.#preBallDelaySeconds;
   }
 
   //Move ball each frame
@@ -184,18 +193,30 @@ export class Ball {
     if (this.#beenHit) {
       this.#hitUpdate(deltaTime);
     } else {
+      if (this.#preBallDelay > 0) {
+        this.#preBallDelay -= deltaTime;
+        this.#mesh.position.set(this.#xPos, this.#yPos, this.#zPos);
+        return; // ball just sits at release point, not bowled yet
+      }
+
       this.#bowler.updateBall(this, deltaTime);
 
       if (this.#checkCollisionWithStumps()) {
         //stop game and display popup message
         setGameState(game_state.GAME_OVER);
-        console.log("Ball has hit the stumps!");
+
+        Player.instance.updateBallsFaced();
+
+        UIManager.instance.showGameOver(
+          Player.instance.runs,
+          Player.instance.balls,
+        );
       }
 
-      if (this.z > -bowlingBackZ * 2) {
-        this.reset();
-        Bat.instance.reset();
-        Player.instance.updateBallsFaced();
+      if (this.z > -bowlingBackZ * 2 && !this.#outcomeHandled) {
+        this.#outcomeHandled = true;
+
+        this.#handleBallOutcome(0); // ball has gone past the stumps, so it is a dot ball
       }
     }
     this.#mesh.position.set(this.#xPos, this.#yPos, this.#zPos);
@@ -205,23 +226,25 @@ export class Ball {
     //reverse the speed
     BallPhysics.update(this, deltaTime);
 
-    this.#checkCollisionWithBoundary();
+    if (this.#checkCollisionWithBoundary()) {
+      return;
+    }
 
     // find speed of ball after being hit
     let totalSpeed = Math.sqrt(this.vx ** 2 + this.vy ** 2 + this.vz ** 2);
 
     //reset if there is no more velocity, and ball is not bouncing
-    if (totalSpeed < 1) {
+    if (totalSpeed < 1 && !this.#outcomeHandled) {
       console.log("Ball has stopped moving at: " + this.z);
+      this.#outcomeHandled = true;
       const retrievalTime = Fielding.estimateRetrievalTime(this.x, this.z);
       const runs = RunCalculator.runsFor(retrievalTime);
       if (runs > 0) {
         Player.instance.addRuns(runs);
         console.log(runs + " run(s) taken.");
       }
-      this.reset();
-      Bat.instance.reset();
-      Player.instance.updateBallsFaced();
+
+      this.#handleBallOutcome(runs);
     }
   }
 
@@ -248,7 +271,7 @@ export class Ball {
     let ballDist = Math.abs(this.#zPos); //make sure position is positive
 
     if (ballDist < this.#boundaryRadius) {
-      return;
+      return false; // ball is still inside the boundary
     }
 
     //assumed that ball has crossed the boundary, so it is a 4, or a 6
@@ -273,12 +296,22 @@ export class Ball {
           this.#boundaryRadius,
       );
     }
-    this.reset(); // reset ball position
-    Bat.instance.reset();
-    Player.instance.updateBallsFaced();
+
+    this.#handleBallOutcome(this.#hasBounced ? 4 : 6);
+    return true; // ball has crossed the boundary
   }
 
   bounce() {
     this.#hasBounced = true;
+  }
+
+  async #handleBallOutcome(runs) {
+    Player.instance.updateBallsFaced();
+
+    UIManager.instance.updateHUD(Player.instance.runs, Player.instance.balls);
+    await UIManager.instance.showShotOverlay(runs);
+
+    this.reset();
+    Bat.instance.reset();
   }
 }

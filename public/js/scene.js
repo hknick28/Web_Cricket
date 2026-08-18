@@ -37,11 +37,13 @@ scene.add(Bat.instance.createBat());
 export function animate() {
   requestAnimationFrame(animate);
 
+  //always drain
+  const deltaTime = clock.getDelta(); // seconds since last frame
+
   if (getCurrentGameState() != game_state.PLAYING) {
     return;
   }
 
-  const deltaTime = clock.getDelta(); // seconds since last frame
   Ball.instance.update(deltaTime); // update ball positon
 
   Bat.instance.update();
