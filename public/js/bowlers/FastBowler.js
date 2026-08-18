@@ -21,7 +21,7 @@ export class FastBowler extends Bowler {
   }
 
   get speed() {
-    return 110;
+    return 100;
   }
   get line() {
     return this.#line;
