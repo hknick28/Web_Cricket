@@ -8,7 +8,7 @@ import { Player } from "./Player.js";
 import { startNewCapture, proccessDataSample } from "./calibrationManager.js";
 
 //socket stuff
-const socket = io();
+export const socket = io();
 
 // Handle menu buttons
 document.getElementById("startBtn")?.addEventListener("click", () => {

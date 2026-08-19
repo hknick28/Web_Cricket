@@ -1,5 +1,6 @@
 import { setGameState, game_state } from "./appState.js";
 import { saveCalibrationToFile } from "./saveCalibration.js";
+import { socket } from "./main.js";
 
 let isCollecting = false;
 
@@ -34,9 +35,6 @@ function setCollectingData(value) {
   isCollecting = value;
 }
 
-// calibrationManager.js
-// calibrationManager.js
-
 export function proccessDataSample(alpha, beta, gamma) {
   // Ignore continuous orientation stream unless a swing event just armed collection
   if (!isCollectingData()) return;
@@ -59,10 +57,16 @@ export function proccessDataSample(alpha, beta, gamma) {
     }
     let peakIndex = velocities.indexOf(Math.max(...velocities)) + 1;
 
+    // Store orientation at frame 0 (start of swing)
+    let alpha0 = alphaBuffer[0];
+    let beta0 = betaBuffer[0];
+    let gamma0 = gammaBuffer[0];
+
+    // Store orientation snapshot at peak impact frame
     let sampleProfile = {
-      pitch: betaBuffer[peakIndex],
-      roll: gammaBuffer[peakIndex],
-      yaw: alphaBuffer[peakIndex],
+      pitchDelta: betaBuffer[peakIndex] - beta0, // Relative tilt change during swing
+      rollDelta: gammaBuffer[peakIndex] - gamma0, // Relative wrist twist during swing
+      yawDelta: alphaBuffer[peakIndex] - alpha0, // Relative horizontal rotation during swing
       peakSpeed: Math.max(...velocities),
     };
 
@@ -70,14 +74,14 @@ export function proccessDataSample(alpha, beta, gamma) {
     clearBuffers();
 
     // Progress shot index or complete calibration
-    checkShots();
+    checkShots(socket);
 
     // Update HUD display
     updateCalibrationHUD();
   }
 }
 
-function checkShots() {
+function checkShots(socket) {
   if (sampleCount >= 5) {
     currentShotIndex++;
     sampleCount = 0;
@@ -89,7 +93,7 @@ function checkShots() {
     setGameState(game_state.MENU);
 
     // Save profile JSON automatically
-    saveCalibrationToFile(calibrationProfiles);
+    saveCalibrationToFile(calibrationProfiles, socket);
 
     // Show menu UI again
     const menu = document.getElementById("menuContainer");

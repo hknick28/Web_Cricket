@@ -1,12 +1,10 @@
-export function saveCalibrationToFile(profileData) {
-  const dataString = JSON.stringify(profileData, null, 2);
-  const blob = new Blob([dataString], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "calibration_profiles.json";
-  a.click();
-  URL.revokeObjectURL(url);
-  console.log("🚀 Calibration complete! Profile downloaded.");
+export function saveCalibrationToFile(profileData, socket) {
+  if (socket) {
+    socket.emit("saveCalibrationData", profileData);
+    console.log("📡 Calibration profiles sent to server for local saving.");
+  } else {
+    console.error(
+      "❌ Socket instance not found. Unable to save calibration data.",
+    );
+  }
 }

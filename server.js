@@ -2,6 +2,10 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 
+// server.js (Node.js Backend)
+const fs = require("fs");
+const path = require("path");
+
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
@@ -29,6 +33,20 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("A device disconnected:", socket.id);
+  });
+  socket.on("saveCalibrationData", (profileData) => {
+    const filePath = path.join(__dirname, "calibration_profiles.json");
+
+    try {
+      const dataString = JSON.stringify(profileData, null, 2);
+      fs.writeFileSync(filePath, dataString, "utf8");
+      console.log(
+        "🚀 Success! Calibration file saved to server directory:",
+        filePath,
+      );
+    } catch (error) {
+      console.error("❌ Failed to save calibration file:", error);
+    }
   });
 });
 
