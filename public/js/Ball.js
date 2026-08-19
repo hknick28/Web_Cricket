@@ -70,6 +70,11 @@ export class Ball {
   get releaseY() {
     return 2.2;
   }
+
+  get mesh() {
+    return this.#mesh;
+  }
+
   // convert kph to ms^-1
   set speed(speed) {
     this.#speed = speed / 3.6;

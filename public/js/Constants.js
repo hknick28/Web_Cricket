@@ -60,9 +60,9 @@ export const Line = Object.freeze({
   },
 });
 
-let windowLength = 1.8; // meters — overall contact window
-let perfectWindow = 0.5; // meters — the tight sweet-spot band inside it
-let zPerfectLengthEnd = battingPopping;
+export const windowLength = 1.8; // meters — overall contact window
+export const perfectWindow = 0.5; // meters — the tight sweet-spot band inside it
+export const zPerfectLengthEnd = battingPopping;
 
 export const Timing = Object.freeze({
   PERFECT: {

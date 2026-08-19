@@ -50,6 +50,7 @@ export class BallPhysics {
 
       //apply friction
       newVz = newVz * this.friction;
+      newVx = newVx * this.friction;
     }
 
     //update ball pos

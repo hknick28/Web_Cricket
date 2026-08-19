@@ -18,7 +18,7 @@ const camera = new THREE.PerspectiveCamera(
 );
 
 //was 0, 2, 16
-camera.position.set(0, 2, battingPopping);
+camera.position.set(0, 2, battingPopping + 2);
 camera.lookAt(0, 0, 0);
 
 initPitch();
@@ -34,6 +34,7 @@ floodLight.position.set(0, 20, 5);
 scene.add(floodLight);
 
 const clock = new THREE.Clock();
+scene.add(Bat.instance.mesh);
 
 //Loop
 export function animate() {

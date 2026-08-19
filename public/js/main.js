@@ -103,7 +103,7 @@ socket.on("swing", (data) => {
   // Optional: Update the 3D Bat instance's rotation to match the exact impact snapshot
   // before checking collision physics
   if (impactOrientation) {
-    //Bat.instance.updateOrientation(impactOrientation);
+    Bat.instance.updateRotationData(impactOrientation);
   }
 
   // Trigger physics collision check using peak acceleration & 3D bat face normal

@@ -1,5 +1,5 @@
 import { battingPopping } from "./pitch.js";
-import { Timing } from "./Constants.js";
+import { Timing, windowLength } from "./Constants.js";
 
 export class Bat {
   static #key = "bat";
@@ -12,11 +12,45 @@ export class Bat {
   #MAX_SPEED = 165;
   #MIN_SPEED = 25;
 
+  #batMesh;
+
   constructor(key) {
     if (key != Bat.#key) {
       throw new Error("Use Bat.getInstance()!");
     }
+    const geometry = new THREE.BoxGeometry(2.5, 1.8, windowLength);
+    const material = new THREE.MeshBasicMaterial({
+      visible: true, // Keep invisible (or set wireframe: true while debugging)
+      wireframe: true,
+    });
+
+    this.#batMesh = new THREE.Mesh(geometry, material);
+    this.#batMesh.position.set(0, 0.9, battingPopping);
+
+    // Inside Bat constructor / initialization method:
+    const dir = new THREE.Vector3(0, 0, -1); // Default pointing down pitch toward bowler
+    const origin = new THREE.Vector3(0, 0, 0); // Center of bat mesh
+    const length = 2; // Length of arrow in meters
+    const hex = 0xffff00; // Bright yellow
+
+    this.arrowHelper = new THREE.ArrowHelper(dir, origin, length, hex);
+    this.#batMesh.add(this.arrowHelper); // Attach to bat mesh so it transforms together
+
     this.reset();
+  }
+
+  get mesh() {
+    return this.#batMesh;
+  }
+
+  updateRotationData(phoneData) {
+    //tilt the collision plane to match the phone angle
+    let x = THREE.MathUtils.degToRad(phoneData.beta) - 90;
+    let y = THREE.MathUtils.degToRad(phoneData.gamma);
+
+    //invert angles before applying
+    this.#batMesh.rotation.x = -x;
+    this.#batMesh.rotation.y = -y;
   }
 
   static get instance() {
@@ -31,7 +65,7 @@ export class Bat {
       return;
     }
     this.#canSwing = false;
-    if (!this.#hit(ball.z, speed)) {
+    if (!this.#hit(ball)) {
       return;
     }
 
@@ -40,26 +74,21 @@ export class Bat {
     this.changeVelocity(ball, speed);
   }
 
-  #hit(ballZ, speed) {
-    let tollerence = 1;
-    if (speed < 55) {
-      tollerence = 1.8;
-    } else {
-      tollerence = 1.2;
-    }
+  #hit(ball) {
+    // 1. Create a 3D bounding box around your wide collision mesh
+    const batBox = new THREE.Box3().setFromObject(this.#batMesh);
 
-    const hitZone = Object.values(Timing).find((zone) =>
-      zone.checkBounds(ballZ, tollerence),
-    );
+    const ballBox = new THREE.Box3().setFromObject(ball.mesh);
 
-    console.log("Before Hit: " + this.#hitZone.label);
-    if (hitZone == null) {
+    // 3. Check for 3D spatial overlap
+    const isContact = batBox.intersectsBox(ballBox);
+
+    if (!isContact) {
       console.log("MISSED!");
       return false;
     }
-    this.#hitZone = hitZone;
 
-    console.log("HIT!: " + this.#hitZone.label);
+    console.log("HIT!");
     return true;
   }
 
@@ -69,22 +98,35 @@ export class Bat {
   }
 
   changeVelocity(ball, speed) {
+    //batface normal
+    const normal = new THREE.Vector3(0, 0, -1);
+
+    normal.applyEuler(this.#batMesh.rotation).normalize(); //rotate bat
+
+    //get incoming velocity of ball
+    const incomingV = new THREE.Vector3(
+      ball.vx || 0,
+      ball.vy || 0,
+      ball.vz || ball.speed || 0,
+    );
+
+    //refect incoming velocity
+    const reflectedV = incomingV.reflect(normal);
+
     const swingPower = Math.min(speed / this.#MAX_SPEED, 1.0);
 
     // 2. Calculate the base forward power.
     // We absorb 35% of the incoming bowler's speed, and add the bat's forward muscle.
     const incomingPaceAbsorbed = Math.abs(ball.speed) * 0.35;
     const forwardMuscle = swingPower * 17; // Max forward contribution from swing
+    const exitMagnitude = incomingPaceAbsorbed + forwardMuscle;
 
-    // Total forward velocity magnitude
-    const totalForwardSpeed =
-      (incomingPaceAbsorbed + forwardMuscle) * this.#hitZone.timingMultiplier;
-
-    const rad = this.#hitZone.launchAngle * (Math.PI / 180);
+    // Keep the reflected 3D direction, but scale its magnitude by our power
+    reflectedV.normalize().multiplyScalar(exitMagnitude);
 
     // 4. Assign vectors (Assuming your bowler drives down negative Z, hit must be positive Z)
-    ball.vx = 0;
-    ball.vy = totalForwardSpeed * Math.sin(rad); // Scale height purely on how hard the phone is swung
-    ball.vz = -totalForwardSpeed * Math.cos(rad); // Sells the distance down the ground
+    ball.vx = reflectedV.x;
+    ball.vy = reflectedV.y; // Scale height purely on how hard the phone is swung
+    ball.vz = reflectedV.z; // Sells the distance down the ground
   }
 }
