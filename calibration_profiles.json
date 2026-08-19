@@ -1,0 +1,162 @@
+{
+  "Cover Drive": [
+    {
+      "pitchDelta": 5.400000000000002,
+      "rollDelta": -17.5,
+      "yawDelta": -8.799999999999997,
+      "peakSpeed": 1.5999999999999979
+    },
+    {
+      "pitchDelta": 92.8,
+      "rollDelta": 153.5,
+      "yawDelta": -221.6,
+      "peakSpeed": 71.8
+    },
+    {
+      "pitchDelta": 2.8000000000000007,
+      "rollDelta": -35.6,
+      "yawDelta": -28.900000000000002,
+      "peakSpeed": 2.6999999999999993
+    },
+    {
+      "pitchDelta": 136.3,
+      "rollDelta": 66.7,
+      "yawDelta": 129.1,
+      "peakSpeed": 57.00000000000001
+    },
+    {
+      "pitchDelta": 59.60000000000001,
+      "rollDelta": -84.9,
+      "yawDelta": 323,
+      "peakSpeed": 6.300000000000001
+    }
+  ],
+  "Pull Shot": [
+    {
+      "pitchDelta": 114.5,
+      "rollDelta": 27.6,
+      "yawDelta": -166.40000000000003,
+      "peakSpeed": 106.29999999999998
+    },
+    {
+      "pitchDelta": 14,
+      "rollDelta": 128.4,
+      "yawDelta": 240.7,
+      "peakSpeed": 18.200000000000003
+    },
+    {
+      "pitchDelta": 18.80000000000001,
+      "rollDelta": 32.00000000000001,
+      "yawDelta": -157.10000000000002,
+      "peakSpeed": 112
+    },
+    {
+      "pitchDelta": 43.1,
+      "rollDelta": -5.700000000000003,
+      "yawDelta": -14.699999999999989,
+      "peakSpeed": 6.700000000000003
+    },
+    {
+      "pitchDelta": 93,
+      "rollDelta": 125.20000000000002,
+      "yawDelta": 101.30000000000001,
+      "peakSpeed": 104.1
+    }
+  ],
+  "Straight Drive": [
+    {
+      "pitchDelta": 220.60000000000002,
+      "rollDelta": 63.8,
+      "yawDelta": 81.9,
+      "peakSpeed": 353.5
+    },
+    {
+      "pitchDelta": 198.3,
+      "rollDelta": 65.8,
+      "yawDelta": 93.20000000000002,
+      "peakSpeed": 84.89999999999999
+    },
+    {
+      "pitchDelta": 132.8,
+      "rollDelta": 54.500000000000014,
+      "yawDelta": 121.90000000000002,
+      "peakSpeed": 113.80000000000001
+    },
+    {
+      "pitchDelta": 232.50000000000003,
+      "rollDelta": 50.8,
+      "yawDelta": 104.30000000000001,
+      "peakSpeed": 352.40000000000003
+    },
+    {
+      "pitchDelta": 198.4,
+      "rollDelta": 59.70000000000001,
+      "yawDelta": 95.50000000000001,
+      "peakSpeed": 167.5
+    }
+  ],
+  "Cut Shot": [
+    {
+      "pitchDelta": 206.60000000000002,
+      "rollDelta": 168.5,
+      "yawDelta": -177.60000000000002,
+      "peakSpeed": 186.20000000000002
+    },
+    {
+      "pitchDelta": 186.8,
+      "rollDelta": 152.8,
+      "yawDelta": -208.2,
+      "peakSpeed": 135.60000000000002
+    },
+    {
+      "pitchDelta": 185.20000000000002,
+      "rollDelta": 136.4,
+      "yawDelta": -191.50000000000003,
+      "peakSpeed": 104
+    },
+    {
+      "pitchDelta": 170.4,
+      "rollDelta": 165.3,
+      "yawDelta": -201.70000000000005,
+      "peakSpeed": 109.5
+    },
+    {
+      "pitchDelta": 221.10000000000002,
+      "rollDelta": 127.2,
+      "yawDelta": -165.2,
+      "peakSpeed": 357.80000000000007
+    }
+  ],
+  "Defensive Shot": [
+    {
+      "pitchDelta": -25.19999999999999,
+      "rollDelta": 12.900000000000002,
+      "yawDelta": 23.89999999999999,
+      "peakSpeed": 5.400000000000006
+    },
+    {
+      "pitchDelta": -355.70000000000005,
+      "rollDelta": 34.400000000000006,
+      "yawDelta": -125.19999999999999,
+      "peakSpeed": 358
+    },
+    {
+      "pitchDelta": 307.1,
+      "rollDelta": 45.900000000000006,
+      "yawDelta": 60.3,
+      "peakSpeed": 354.6
+    },
+    {
+      "pitchDelta": 320.20000000000005,
+      "rollDelta": 33.300000000000004,
+      "yawDelta": 45.199999999999996,
+      "peakSpeed": 356.1
+    },
+    {
+      "pitchDelta": -340.70000000000005,
+      "rollDelta": -33.400000000000006,
+      "yawDelta": 65.5,
+      "peakSpeed": 358
+    }
+  ]
+}
