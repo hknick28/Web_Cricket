@@ -35,7 +35,11 @@ io.on("connection", (socket) => {
     console.log("A device disconnected:", socket.id);
   });
   socket.on("saveCalibrationData", (profileData) => {
-    const filePath = path.join(__dirname, "calibration_profiles.json");
+    const filePath = path.join(
+      __dirname,
+      "public",
+      "calibration_profiles.json",
+    );
 
     try {
       const dataString = JSON.stringify(profileData, null, 2);
