@@ -9,7 +9,7 @@ export class Bat {
   #canSwing;
   #hitZone;
 
-  #MAX_SPEED = 165;
+  #MAX_SPEED = 100;
   #MIN_SPEED = 25;
 
   #batMesh;
@@ -18,14 +18,14 @@ export class Bat {
     if (key != Bat.#key) {
       throw new Error("Use Bat.getInstance()!");
     }
-    const geometry = new THREE.BoxGeometry(2.5, 1.8, windowLength);
+    const geometry = new THREE.BoxGeometry(2.5, 1.8, windowLength + 1);
     const material = new THREE.MeshBasicMaterial({
       visible: true, // Keep invisible (or set wireframe: true while debugging)
       wireframe: true,
     });
 
     this.#batMesh = new THREE.Mesh(geometry, material);
-    this.#batMesh.position.set(0, 0.9, battingPopping);
+    this.#batMesh.position.set(0, 0.9, battingPopping - 1.2);
 
     // Inside Bat constructor / initialization method:
     const dir = new THREE.Vector3(0, 0, -1); // Default pointing down pitch toward bowler
@@ -45,12 +45,16 @@ export class Bat {
 
   updateRotationData(phoneData) {
     //tilt the collision plane to match the phone angle
-    let x = THREE.MathUtils.degToRad(phoneData.beta) - 90;
-    let y = THREE.MathUtils.degToRad(phoneData.gamma);
+    let x = phoneData.beta - 90;
+    let y = phoneData.gamma * 0.5;
+
+    const maxTiltDeg = 40; // realistic bat-face open/close range
+    x = THREE.MathUtils.clamp(x, -maxTiltDeg, maxTiltDeg);
+    y = THREE.MathUtils.clamp(y, -maxTiltDeg, maxTiltDeg);
 
     //invert angles before applying
-    this.#batMesh.rotation.x = -x;
-    this.#batMesh.rotation.y = -y;
+    this.#batMesh.rotation.x = THREE.MathUtils.degToRad(x);
+    this.#batMesh.rotation.y = THREE.MathUtils.degToRad(-y);
   }
 
   static get instance() {
@@ -68,6 +72,12 @@ export class Bat {
     if (!this.#hit(ball)) {
       return;
     }
+    // Determine timing zone based on ball's z at contact
+    this.#hitZone = Timing.PERFECT.checkBounds(ball.z)
+      ? Timing.PERFECT
+      : Timing.EARLY.checkBounds(ball.z)
+        ? Timing.EARLY
+        : Timing.NONE;
 
     ball.hit = true;
 
@@ -99,14 +109,19 @@ export class Bat {
 
   changeVelocity(ball, speed) {
     //batface normal
-    const normal = new THREE.Vector3(0, 0, -1);
+    const normal = new THREE.Vector3(0, 0, 1);
 
     normal.applyEuler(this.#batMesh.rotation).normalize(); //rotate bat
-
+    console.log(
+      "bat rotation.x (deg):",
+      THREE.MathUtils.radToDeg(this.#batMesh.rotation.x),
+    );
+    console.log("bat normal at contact:", normal);
+    console.log("incoming ball.vz at contact:", ball.vz);
     //get incoming velocity of ball
     const incomingV = new THREE.Vector3(
       ball.vx || 0,
-      ball.vy || 0,
+      (ball.vy || 0) * 0.25,
       ball.vz || ball.speed || 0,
     );
 
@@ -118,7 +133,7 @@ export class Bat {
     // 2. Calculate the base forward power.
     // We absorb 35% of the incoming bowler's speed, and add the bat's forward muscle.
     const incomingPaceAbsorbed = Math.abs(ball.speed) * 0.35;
-    const forwardMuscle = swingPower * 17; // Max forward contribution from swing
+    const forwardMuscle = swingPower * 17 * this.#hitZone.timingMultiplier; // Max forward contribution from swing
     const exitMagnitude = incomingPaceAbsorbed + forwardMuscle;
 
     // Keep the reflected 3D direction, but scale its magnitude by our power

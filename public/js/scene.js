@@ -18,7 +18,7 @@ const camera = new THREE.PerspectiveCamera(
 );
 
 //was 0, 2, 16
-camera.position.set(0, 2, battingPopping + 2);
+camera.position.set(0, 2, battingPopping);
 camera.lookAt(0, 0, 0);
 
 initPitch();

@@ -26,17 +26,7 @@ document.getElementById("startBtn")?.addEventListener("click", () => {
 });
 
 // handle calibration button
-document.getElementById("calibrateBtn")?.addEventListener("click", () => {
-  setGameState(game_state.CALIBRATING);
-  document.getElementById("menuContainer").style.display = "none";
-  document.getElementById("hudContainer").style.display = "none";
-
-  // 2. Display calibration HUD message (optional but helpful)
-  const hudElement = document.getElementById("hudStatus");
-  if (hudElement) {
-    hudElement.innerText = "Calibrating Shot 1/5: Perform 5 Cover Drives";
-  }
-});
+document.getElementById("calibrateBtn")?.addEventListener("click", () => {});
 
 // handle game over button
 document.getElementById("restartBtn")?.addEventListener("click", () => {
