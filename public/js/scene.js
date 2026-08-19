@@ -34,7 +34,6 @@ floodLight.position.set(0, 20, 5);
 scene.add(floodLight);
 
 const clock = new THREE.Clock();
-scene.add(Bat.instance.createBat());
 
 //Loop
 export function animate() {
@@ -49,7 +48,6 @@ export function animate() {
 
   Ball.instance.update(deltaTime); // update ball positon
 
-  Bat.instance.update();
   //render ground
   renderer.render(scene, camera);
 }

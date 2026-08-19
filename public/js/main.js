@@ -5,7 +5,11 @@ import { Bat } from "./Bat.js";
 import { currentGameState, game_state, setGameState } from "./appState.js";
 import "./scene.js";
 import { Player } from "./Player.js";
-import { startNewCapture, proccessDataSample } from "./calibrationManager.js";
+import {
+  proccessDataSample,
+  buildShotClusters,
+  classifyShotNearestCluster,
+} from "./calibrationManager.js";
 
 //socket stuff
 export const socket = io();
@@ -79,36 +83,31 @@ socket.on("orientation", (data) => {
   latestBeta = beta;
   phoneRotationData.beta = beta - betaOffset;
   phoneRotationData.gamma = gamma - gammaOffset;
-
-  // IF WE ARE IN CALIBRATING STATE: Feed orientation directly into calibration manager
-  if (currentGameState === game_state.CALIBRATING) {
-    console.log("Swing detected for calibration");
-    proccessDataSample(alpha, beta, gamma);
-  }
 });
 
 // start loop here, after everything is loaded
+let swingEventCount = 0;
 
 // Swing for game
 socket.on("swing", (data) => {
-  const { alpha, beta, gamma } = data;
+  swingEventCount++;
+  console.log(`🏏 Swing Event #${swingEventCount}:`, data);
 
-  // Store offsets for main rotation display
-  latestGamma = gamma;
-  latestBeta = beta;
-  phoneRotationData.beta = beta - betaOffset;
-  phoneRotationData.gamma = gamma - gammaOffset;
-
-  // IF WE ARE IN CALIBRATING STATE: Feed orientation directly into calibration manager
-  if (currentGameState === game_state.CALIBRATING) {
-    console.log("Swing detected for calibration");
-    startNewCapture();
+  // Ignore swings if not in active gameplay mode
+  if (currentGameState !== game_state.PLAYING) {
+    return;
   }
 
-  if (currentGameState === game_state.PLAYING) {
-    let acceleration = data.batAcceleration;
-    Bat.instance.checkSwing(Ball.instance, acceleration);
+  const { batAcceleration, impactOrientation } = data;
+
+  // Optional: Update the 3D Bat instance's rotation to match the exact impact snapshot
+  // before checking collision physics
+  if (impactOrientation) {
+    //Bat.instance.updateOrientation(impactOrientation);
   }
+
+  // Trigger physics collision check using peak acceleration & 3D bat face normal
+  Bat.instance.checkSwing(Ball.instance, batAcceleration);
 });
 
 function resetGame() {
@@ -116,3 +115,23 @@ function resetGame() {
   Bat.instance.reset();
   Player.instance.reset();
 }
+
+let activeClusters = null;
+
+async function loadCalibrationProfiles() {
+  try {
+    const response = await fetch("/calibration_profiles.json");
+    if (!response.ok) throw new Error("No calibration file found");
+
+    const rawProfiles = await response.json();
+    activeClusters = buildShotClusters(rawProfiles);
+    console.log("🎯 Calibration clusters loaded:", activeClusters);
+  } catch (err) {
+    console.warn(
+      "⚠️ Calibration file not loaded or missing. Run calibration first.",
+      err,
+    );
+  }
+}
+
+loadCalibrationProfiles();

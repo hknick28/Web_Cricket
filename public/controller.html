@@ -5,66 +5,78 @@
     <script>
       const socket = io();
 
-      let isSwinging = false;
+      let latestOrientation = { alpha: 0, beta: 0, gamma: 0 };
 
-      // event listener
+      let isSwinging = false;
+      let swingSamples = [];
+      let sensorsStarted = false;
+
+      const SWING_COLLECTION_MS = 100;
+      const SWING_COOLDOWN_MS = 400;
+      let inCoolDown = false;
+
       function startSensors() {
+        if (sensorsStarted) return;
+        sensorsStarted = true;
+
         window.addEventListener("deviceorientation", (event) => {
+          latestOrientation = {
+            alpha: event.alpha || 0,
+            beta: event.beta || 0,
+            gamma: event.gamma || 0,
+          };
+
           document.getElementById("output").innerHTML =
             "alpha: " +
-            event.alpha +
+            latestOrientation.alpha.toFixed(1) +
             " beta: " +
-            event.beta +
+            latestOrientation.beta.toFixed(1) +
             " gamma: " +
-            event.gamma;
+            latestOrientation.gamma.toFixed(1);
 
-          socket.emit("orientation", {
-            alpha: event.alpha,
-            beta: event.beta,
-            gamma: event.gamma,
-          });
-        });
-
-        let isSwinging = false;
-        let swingSamples = [];
-
-        window.addEventListener("devicemotion", (event) => {
-          let x = event.acceleration.x;
-          let y = event.acceleration.y;
-          let z = event.acceleration.z;
-
-          let acc = Math.sqrt(x ** 2 + y ** 2 + z ** 2);
-
-          document.getElementById("acceleration").innerHTML =
-            "Total Acceleration: " + acc.toFixed(2);
-
-          // If already collecting a swing, keep adding samples
-          if (isSwinging) {
-            swingSamples.push(acc);
-            return;
-          }
-
-          // Threshold crossed — start collecting
-          if (acc < 20) return;
-
-          isSwinging = true;
-          swingSamples = [acc]; // include this first spike
-
-          setTimeout(() => {
-            // Swing window is over — find the peak and send it
-            const peakBatspeed = Math.max(...swingSamples);
-
-            socket.emit("swing", {
-              batAcceleration: peakBatspeed,
-            });
-
-            swingSamples = [];
-            isSwinging = false;
-          }, 100); // 100ms collection window
+          // Continuously stream orientation so the 3D bat mirrors the phone face live
+          socket.emit("orientation", latestOrientation);
         });
       }
 
-      //calibrate default gamma and beta values for batting
+      window.addEventListener("devicemotion", (event) => {
+        let x = event.acceleration.x || 0;
+        let y = event.acceleration.y || 0;
+        let z = event.acceleration.z || 0;
+        let acc = Math.sqrt(x ** 2 + y ** 2 + z ** 2);
+
+        document.getElementById("acceleration").innerHTML =
+          "Total Acceleration: " + acc.toFixed(2);
+
+        if (isSwinging) {
+          swingSamples.push(acc);
+          return;
+        }
+
+        if (inCoolDown || acc < 20) return;
+
+        isSwinging = true;
+        swingSamples = [acc];
+
+        setTimeout(() => {
+          const peakBatspeed = Math.max(...swingSamples);
+
+          // Send impulse trigger along with orientation snapshot at impact
+          socket.emit("swing", {
+            batAcceleration: peakBatspeed,
+            impactOrientation: { ...latestOrientation },
+          });
+
+          swingSamples = [];
+          isSwinging = false;
+
+          inCoolDown = true;
+          setTimeout(() => {
+            inCoolDown = false;
+          }, SWING_COOLDOWN_MS);
+        }, SWING_COLLECTION_MS);
+      });
+
       function calibrate() {
         socket.emit("calibrate");
       }
@@ -72,9 +84,9 @@
   </head>
 
   <body>
-    <h1>Conteroller</h1>
+    <h1>Controller</h1>
     <button onclick="startSensors()">Start</button>
-    <button onClick="calibrate()">calibrate</button>
+    <button onclick="calibrate()">Calibrate Offsets</button>
     <div id="output">Waiting for sensor...</div>
     <div id="acceleration">Acceleration: Waiting...</div>
   </body>
