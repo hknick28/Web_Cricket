@@ -12,6 +12,8 @@ export class Bat {
   #MAX_SPEED = 100;
   #MIN_SPEED = 25;
 
+  #lastContactPoint;
+
   #batMesh;
 
   constructor(key) {
@@ -44,17 +46,20 @@ export class Bat {
   }
 
   updateRotationData(phoneData) {
-    //tilt the collision plane to match the phone angle
-    let x = phoneData.beta - 90;
-    let y = phoneData.gamma * 0.5;
+    // phoneData.alpha and phoneData.beta are now clean relative deltas around 0°
+    let yaw = (phoneData.alpha || 0) * 0.3;
+    let pitch = (phoneData.beta || 0) * 0.3;
 
-    const maxTiltDeg = 40; // realistic bat-face open/close range
-    x = THREE.MathUtils.clamp(x, -maxTiltDeg, maxTiltDeg);
-    y = THREE.MathUtils.clamp(y, -maxTiltDeg, maxTiltDeg);
+    const maxTiltDeg = 40; // Clamps max bat face opening/closing
+    yaw = THREE.MathUtils.clamp(yaw, -maxTiltDeg, maxTiltDeg);
+    pitch = THREE.MathUtils.clamp(pitch, -maxTiltDeg, maxTiltDeg);
 
-    //invert angles before applying
-    this.#batMesh.rotation.x = THREE.MathUtils.degToRad(x);
-    this.#batMesh.rotation.y = THREE.MathUtils.degToRad(-y);
+    //reset bat mesh pos before rotating
+    this.#resetBatMesh();
+
+    // Apply clean relative rotation to the 3D bat plane
+    this.#batMesh.rotation.x = THREE.MathUtils.degToRad(-pitch);
+    this.#batMesh.rotation.y = THREE.MathUtils.degToRad(yaw);
   }
 
   static get instance() {
@@ -97,6 +102,8 @@ export class Bat {
       console.log("MISSED!");
       return false;
     }
+    const localPoint = this.#batMesh.worldToLocal(ball.mesh.position.clone());
+    this.#lastContactPoint = localPoint; // store for changeVelocity to use
 
     console.log("HIT!");
     return true;
@@ -105,6 +112,8 @@ export class Bat {
   reset() {
     this.#hitZone = Timing.NONE;
     this.#canSwing = true;
+    this.#lastContactPoint = 0;
+    this.#resetBatMesh();
   }
 
   changeVelocity(ball, speed) {
@@ -139,9 +148,24 @@ export class Bat {
     // Keep the reflected 3D direction, but scale its magnitude by our power
     reflectedV.normalize().multiplyScalar(exitMagnitude);
 
+    console.log(
+      "contact local x/y:",
+      this.#lastContactPoint.x,
+      this.#lastContactPoint.y,
+    );
+
+    //contact points
+    reflectedV.y += this.#lastContactPoint.y * 4;
+    reflectedV.x += this.#lastContactPoint.x * 0.3;
+
     // 4. Assign vectors (Assuming your bowler drives down negative Z, hit must be positive Z)
     ball.vx = reflectedV.x;
     ball.vy = reflectedV.y; // Scale height purely on how hard the phone is swung
     ball.vz = reflectedV.z; // Sells the distance down the ground
+  }
+
+  #resetBatMesh() {
+    this.#batMesh.rotation.set(0, 0, 0);
+    this.#batMesh.quaternion.identity();
   }
 }

@@ -48,18 +48,23 @@ document.getElementById("exitBtn")?.addEventListener("click", () => {
 export const phoneRotationData = {
   beta: 0,
   gamma: 0,
+  alpha: 0,
   gammaOffset: 0,
   betaOffset: 0,
+  alphaOffset: 0,
 };
 
 let gammaOffset = 0;
 let betaOffset = 0;
 let latestGamma = 0;
 let latestBeta = 0;
+let alphaOffset = 0;
+let latestAlpha = 0;
 
 function calibrate() {
   gammaOffset = latestGamma;
   betaOffset = latestBeta;
+  alphaOffset = latestAlpha;
 }
 socket.on("calibrate", () => {
   calibrate();
@@ -69,8 +74,12 @@ socket.on("orientation", (data) => {
   const { alpha, beta, gamma } = data;
 
   // Store offsets for main rotation display
+  latestAlpha = alpha;
+
   latestGamma = gamma;
   latestBeta = beta;
+
+  phoneRotationData.alpha = alpha - alphaOffset;
   phoneRotationData.beta = beta - betaOffset;
   phoneRotationData.gamma = gamma - gammaOffset;
 });
@@ -82,6 +91,14 @@ let swingEventCount = 0;
 socket.on("swing", (data) => {
   swingEventCount++;
   console.log(`🏏 Swing Event #${swingEventCount}:`, data);
+  console.log(
+    "impactOrientation → alpha:",
+    data.impactOrientation?.alpha,
+    "beta:",
+    data.impactOrientation?.beta,
+    "gamma:",
+    data.impactOrientation?.gamma,
+  );
 
   // Ignore swings if not in active gameplay mode
   if (currentGameState !== game_state.PLAYING) {

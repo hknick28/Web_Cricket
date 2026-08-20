@@ -6,6 +6,7 @@
       const socket = io();
 
       let latestOrientation = { alpha: 0, beta: 0, gamma: 0 };
+      let idleOrientationBuffer = [];
 
       let isSwinging = false;
       let swingSamples = [];
@@ -25,6 +26,14 @@
             beta: event.beta || 0,
             gamma: event.gamma || 0,
           };
+
+          // Store pre-swing stance orientations in a ring buffer
+          if (!isSwinging) {
+            idleOrientationBuffer.push({ ...latestOrientation });
+            if (idleOrientationBuffer.length > 10) {
+              idleOrientationBuffer.shift();
+            }
+          }
 
           document.getElementById("output").innerHTML =
             "alpha: " +
@@ -49,22 +58,52 @@
           "Total Acceleration: " + acc.toFixed(2);
 
         if (isSwinging) {
-          swingSamples.push(acc);
+          swingSamples.push({ acc, orientation: { ...latestOrientation } });
           return;
         }
 
         if (inCoolDown || acc < 20) return;
 
         isSwinging = true;
-        swingSamples = [acc];
+
+        // Grab the baseline pose right before the acceleration spike occurred
+        const preSwingBaseline =
+          idleOrientationBuffer.length > 0
+            ? idleOrientationBuffer[0]
+            : { ...latestOrientation };
+
+        swingSamples = [{ acc, orientation: { ...latestOrientation } }];
 
         setTimeout(() => {
-          const peakBatspeed = Math.max(...swingSamples);
+          // Find sample when acceleration is at its peak
+          const peakSample = swingSamples.reduce((max, s) =>
+            s.acc > max.acc ? s : max,
+          );
 
-          // Send impulse trigger along with orientation snapshot at impact
+          // Calculate relative yaw (alpha) deviation from pre-swing stance
+          let rawDeltaAlpha =
+            peakSample.orientation.alpha - preSwingBaseline.alpha;
+
+          rawDeltaAlpha += 36; //neutralie wrist lokcing at impact
+          let deltaAlpha = ((rawDeltaAlpha + 180) % 360) - 180;
+
+          // Calculate relative pitch (beta) deviation from pre-swing stance
+          let rawDeltaBeta =
+            peakSample.orientation.beta - preSwingBaseline.beta;
+          let deltaBeta = ((rawDeltaBeta + 180) % 360) - 180;
+
+          // Calculate relative roll (gamma) deviation
+          let deltaGamma =
+            peakSample.orientation.gamma - preSwingBaseline.gamma;
+
+          // Send impulse trigger along with relative orientation snapshot at impact
           socket.emit("swing", {
-            batAcceleration: peakBatspeed,
-            impactOrientation: { ...latestOrientation },
+            batAcceleration: peakSample.acc,
+            impactOrientation: {
+              alpha: deltaAlpha,
+              beta: deltaBeta,
+              gamma: deltaGamma,
+            },
           });
 
           swingSamples = [];
